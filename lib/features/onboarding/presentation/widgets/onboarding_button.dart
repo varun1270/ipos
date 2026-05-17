@@ -78,6 +78,11 @@ class _OnboardingButtonState extends State<OnboardingButton>
 
   @override
   Widget build(BuildContext context) {
+    final isCompact = MediaQuery.sizeOf(context).height < 700;
+    final buttonHeight = isCompact ? 52.0 : _height;
+    final buttonDepth = isCompact ? 4.0 : _depth;
+    final buttonRadius = isCompact ? 18.0 : _radius;
+    final textSize = isCompact ? 18.0 : 20.0;
     final baseColor = _darken(widget.color, 0.22);
     final faceTop = _lighten(widget.color, 0.08);
     final faceBottom = _darken(widget.color, 0.06);
@@ -90,7 +95,7 @@ class _OnboardingButtonState extends State<OnboardingButton>
         animation: _press,
         builder: (context, child) {
           final t = _press.value;
-          final faceOffset = _depth * t;
+          final faceOffset = buttonDepth * t;
           final shadowBlur = 18 - (10 * t);
           final shadowSpread = -6 + (4 * t);
           final shadowYOffset = 10 - (6 * t);
@@ -100,21 +105,21 @@ class _OnboardingButtonState extends State<OnboardingButton>
           );
 
           return SizedBox(
-            height: _height + _depth,
+            height: buttonHeight + buttonDepth,
             width: double.infinity,
             child: Stack(
               clipBehavior: Clip.none,
               alignment: Alignment.topCenter,
               children: [
                 Positioned(
-                  top: _depth,
+                  top: buttonDepth,
                   left: 0,
                   right: 0,
                   child: Container(
-                    height: _height,
+                    height: buttonHeight,
                     decoration: BoxDecoration(
                       color: baseColor,
-                      borderRadius: BorderRadius.circular(_radius),
+                      borderRadius: BorderRadius.circular(buttonRadius),
                       boxShadow: [
                         BoxShadow(
                           color: widget.color.withValues(alpha: 0.22),
@@ -132,9 +137,9 @@ class _OnboardingButtonState extends State<OnboardingButton>
                     scale: 1 - (0.015 * t),
                     alignment: Alignment.topCenter,
                     child: Container(
-                      height: _height,
+                      height: buttonHeight,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(_radius),
+                        borderRadius: BorderRadius.circular(buttonRadius),
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
@@ -173,7 +178,7 @@ class _OnboardingButtonState extends State<OnboardingButton>
                         ],
                       ),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(_radius),
+                        borderRadius: BorderRadius.circular(buttonRadius),
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
@@ -181,7 +186,7 @@ class _OnboardingButtonState extends State<OnboardingButton>
                               top: 0,
                               left: 0,
                               right: 0,
-                              height: _height * 0.42,
+                              height: buttonHeight * 0.42,
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
@@ -205,7 +210,7 @@ class _OnboardingButtonState extends State<OnboardingButton>
                   top: faceOffset,
                   left: 0,
                   right: 0,
-                  height: _height,
+                  height: buttonHeight,
                   child: Transform.scale(
                     scale: 1 - (0.015 * t),
                     alignment: Alignment.topCenter,
@@ -218,7 +223,7 @@ class _OnboardingButtonState extends State<OnboardingButton>
                             widget.text,
                             style: TextStyle(
                               color: foregroundColor,
-                              fontSize: 20,
+                              fontSize: textSize,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.2,
                               shadows: [

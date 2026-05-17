@@ -4,18 +4,20 @@ class FeatureTile extends StatelessWidget {
   final String text;
   final Color color;
   final TextStyle? textStyle;
+  final double bottomPadding;
 
   const FeatureTile({
     super.key,
     required this.text,
     required this.color,
     this.textStyle,
+    this.bottomPadding = 10,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.only(bottom: bottomPadding),
 
       child: Row(
         children: [

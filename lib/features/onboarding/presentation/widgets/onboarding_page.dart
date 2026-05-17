@@ -40,65 +40,92 @@ class OnboardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact = constraints.maxHeight < 560;
+        final isVeryCompact = constraints.maxHeight < 500;
+        final iconSize = isVeryCompact ? 142.0 : (isCompact ? 166.0 : 220.0);
+        final titleStyle = _titleTextStyle.copyWith(
+          fontSize: isVeryCompact ? 21 : (isCompact ? 22 : 24),
+        );
+        final descriptionStyle = _descriptionTextStyle.copyWith(
+          fontSize: isVeryCompact ? 13.5 : (isCompact ? 14 : 16),
+          height: isCompact ? 1.35 : 1.5,
+        );
+        final featureStyle = _featureTextStyle.copyWith(
+          fontSize: isVeryCompact ? 13.5 : (isCompact ? 14 : 15),
+        );
+        final iconGap = isCompact ? 4.0 : 10.0;
+        final titleGap = isCompact ? 10.0 : 18.0;
+        final descriptionGap = isCompact ? 8.0 : 14.0;
+        final featureGap = isCompact ? 12.0 : 20.0;
 
-      child: Column(
-        children: [
-          const Spacer(),
-
-          OnboardingIcon(
-            icon: data.icon,
-            iconColor: data.iconColor,
-            innerColor: data.iconInnerCircleColor,
-            outerColor: data.iconOuterCircleColor,
-            size: 220,
+        return Padding(
+          padding: EdgeInsets.only(
+            top: isCompact ? 0 : 8,
+            bottom: isCompact ? 0 : 8,
           ),
 
-          const SizedBox(height: 10),
+          child: Column(
+            children: [
+              Spacer(flex: isCompact ? 1 : 2),
 
-          Text(
-            '$pageNumber of $pageCount',
-            style: _pageIndicatorTextStyle.copyWith(
-              color: data.iconInnerCircleColor,
-            ),
-          ).fadeSlide(),
+              OnboardingIcon(
+                icon: data.icon,
+                iconColor: data.iconColor,
+                innerColor: data.iconInnerCircleColor,
+                outerColor: data.iconOuterCircleColor,
+                size: iconSize,
+              ),
 
-          const SizedBox(height: 18),
+              SizedBox(height: iconGap),
 
-          Text(
-            data.title,
+              Text(
+                '$pageNumber of $pageCount',
+                style: _pageIndicatorTextStyle.copyWith(
+                  color: data.iconInnerCircleColor,
+                  fontSize: isCompact ? 12 : 13,
+                ),
+              ).fadeSlide(),
 
-            textAlign: TextAlign.center,
+              SizedBox(height: titleGap),
 
-            style: _titleTextStyle,
-          ).fadeSlide(),
+              Text(
+                data.title,
 
-          const SizedBox(height: 14),
+                textAlign: TextAlign.center,
 
-          Text(
-            data.description,
+                style: titleStyle,
+              ).fadeSlide(),
 
-            textAlign: TextAlign.center,
+              SizedBox(height: descriptionGap),
 
-            style: _descriptionTextStyle,
-          ).fadeSlide(),
+              Text(
+                data.description,
 
-          const SizedBox(height: 20),
+                textAlign: TextAlign.center,
 
-          Column(
-            children: data.features.asMap().entries.map((entry) {
-              return FeatureTile(
-                text: entry.value,
-                color: data.iconInnerCircleColor,
-                textStyle: _featureTextStyle,
-              ).fadeSlideStaggered(entry.key);
-            }).toList(),
+                style: descriptionStyle,
+              ).fadeSlide(),
+
+              SizedBox(height: featureGap),
+
+              Column(
+                children: data.features.asMap().entries.map((entry) {
+                  return FeatureTile(
+                    text: entry.value,
+                    color: data.iconInnerCircleColor,
+                    textStyle: featureStyle,
+                    bottomPadding: isCompact ? 7 : 10,
+                  ).fadeSlideStaggered(entry.key);
+                }).toList(),
+              ),
+
+              Spacer(flex: isCompact ? 3 : 2),
+            ],
           ),
-
-          const Spacer(),
-        ],
-      ),
+        );
+      },
     );
   }
 }

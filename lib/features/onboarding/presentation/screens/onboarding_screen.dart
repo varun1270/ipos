@@ -42,6 +42,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final isCompact = screenHeight < 700;
+
     return AnimatedBuilder(
       animation: controller.pageController,
       builder: (context, _) {
@@ -60,7 +63,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
             body: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: isCompact ? 14 : 24,
+                ),
 
                 child: Column(
                   children: [
@@ -137,7 +143,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       },
                     ),
 
-                    const SizedBox(height: 20),
+                    SizedBox(height: isCompact ? 10 : 20),
                   ],
                 ),
               ),
