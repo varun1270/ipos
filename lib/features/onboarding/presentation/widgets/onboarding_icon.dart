@@ -8,6 +8,7 @@ class OnboardingIcon extends StatefulWidget {
   final Color iconColor;
   final Color innerColor;
   final Color outerColor;
+  final double size;
 
   const OnboardingIcon({
     super.key,
@@ -15,6 +16,7 @@ class OnboardingIcon extends StatefulWidget {
     required this.iconColor,
     required this.innerColor,
     required this.outerColor,
+    this.size = 230,
   });
 
   @override
@@ -25,7 +27,7 @@ class _OnboardingIconState extends State<OnboardingIcon>
     with SingleTickerProviderStateMixin {
   static const double _floatTop = -30;
   static const double _floatBottom = 18;
-  static const double _groundTime = 0.50;
+  static const double _groundTime = 0.54;
 
   late final AnimationController _controller;
 
@@ -35,7 +37,7 @@ class _OnboardingIconState extends State<OnboardingIcon>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1550),
+      duration: const Duration(milliseconds: 2700),
     );
 
     _controller.repeat();
@@ -49,12 +51,19 @@ class _OnboardingIconState extends State<OnboardingIcon>
 
   /// 0 = on the ground, 1 = highest point in the bounce.
   double _elevation(double t) {
-    final distanceFromGround = (t - _groundTime).abs() / _groundTime;
-    final easedDistance = Curves.easeOutCubic.transform(
-      distanceFromGround.clamp(0.0, 1.0),
+    if (t < _groundTime) {
+      final fallProgress = (t / _groundTime).clamp(0.0, 1.0);
+      final acceleratedFall = math.pow(fallProgress, 1.75).toDouble();
+      return (1 - acceleratedFall).clamp(0.0, 1.0);
+    }
+
+    final riseProgress = ((t - _groundTime) / (1 - _groundTime)).clamp(
+      0.0,
+      1.0,
     );
 
-    return easedDistance.clamp(0.0, 1.0);
+    final weightedRise = 1 - math.pow(1 - riseProgress, 1.55);
+    return weightedRise.clamp(0.0, 1.0).toDouble();
   }
 
   double _bounceY(double t) {
@@ -63,11 +72,15 @@ class _OnboardingIconState extends State<OnboardingIcon>
   }
 
   double _swayX(double t) {
-    return math.sin(t * math.pi * 2) * 2.4;
+    final residual = _residualMotion(t);
+    final organicDrift =
+        math.sin(t * math.pi * 2) * 2.1 + math.sin(t * math.pi * 5.4) * 0.18;
+
+    return organicDrift + residual * 0.34;
   }
 
   double _impactAmount(double t) {
-    const impactWindow = 0.16;
+    const impactWindow = 0.14;
     final distanceFromGround = (t - _groundTime).abs();
 
     if (distanceFromGround > impactWindow) {
@@ -77,11 +90,23 @@ class _OnboardingIconState extends State<OnboardingIcon>
     final progress = 1 - distanceFromGround / impactWindow;
     final smoothProgress =
         progress * progress * progress * (10 + progress * (6 * progress - 15));
-    return smoothProgress * 0.38;
+    return smoothProgress * 0.30;
+  }
+
+  double _residualMotion(double t) {
+    const settleWindow = 0.30;
+
+    if (t < _groundTime || t > _groundTime + settleWindow) {
+      return 0;
+    }
+
+    final progress = (t - _groundTime) / settleWindow;
+    final envelope = math.pow(1 - progress, 2).toDouble();
+    return math.sin(progress * math.pi * 5.2) * envelope;
   }
 
   double _motionScale(double t) {
-    const scaleAmount = 0.018;
+    const scaleAmount = 0.015;
 
     if (t < _groundTime) {
       final fallProgress = (t / _groundTime).clamp(0.0, 1.0);
@@ -100,99 +125,113 @@ class _OnboardingIconState extends State<OnboardingIcon>
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-          height: 230,
-          width: 230,
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, _) {
-              final t = _controller.value;
-              final y = _bounceY(t);
-              final x = _swayX(t);
-              final elevation = _elevation(t);
-              final proximity = 1 - elevation;
-              final impact = _impactAmount(t);
-              final motionScale = _motionScale(t);
+          height: widget.size,
+          width: widget.size,
+          child: FittedBox(
+            child: SizedBox(
+              height: 230,
+              width: 230,
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (context, _) {
+                  final t = _controller.value;
+                  final y = _bounceY(t);
+                  final x = _swayX(t);
+                  final elevation = _elevation(t);
+                  final proximity = 1 - elevation;
+                  final impact = _impactAmount(t);
+                  final residual = _residualMotion(t);
+                  final motionScale = _motionScale(t);
 
-              final groundOpacity = 0.06 + proximity * 0.16 + impact * 0.08;
-              final groundBlur = 10 + proximity * 24 + impact * 6;
-              final groundSpread = proximity * 7 + impact * 3;
-              final groundScaleX = 0.70 + proximity * 0.38 + impact * 0.12;
-              final groundScaleY = 0.16 + proximity * 0.12 + impact * 0.05;
+                  final groundOpacity = 0.06 + proximity * 0.14 + impact * 0.06;
+                  final groundBlur = 9 + proximity * 16 + impact * 4;
+                  final groundSpread = proximity * 5 + impact * 2;
+                  final groundScaleX = 0.72 + proximity * 0.32 + impact * 0.08;
+                  final groundScaleY = 0.16 + proximity * 0.10 + impact * 0.04;
 
-              final dropBlur = 8 + proximity * 24;
-              final dropOffsetY = 6 + proximity * 16;
-              final dropOpacity = 0.06 + proximity * 0.14;
+                  final dropBlur = 8 + proximity * 14;
+                  final dropOffsetY = 6 + proximity * 12;
+                  final dropOpacity = 0.06 + proximity * 0.12;
 
-              final groundBlend = Curves.easeInOut.transform(proximity);
-              final travelScale = motionScale * (1 - impact * groundBlend);
-              final sphereScaleX = 1 + travelScale + impact * 0.018;
-              final sphereScaleY = 1 + travelScale - impact * 0.022;
-              final tiltX = (elevation - 0.5) * 0.10;
-              final tiltZ = x * 0.012 + impact * 0.002;
+                  final groundBlend = Curves.easeInOut.transform(proximity);
+                  final impactBlend = (impact * groundBlend * 3.2).clamp(
+                    0.0,
+                    1.0,
+                  );
+                  final travelScale = motionScale * (1 - impactBlend);
+                  final residualScale = residual * 0.0025;
+                  final sphereScaleX =
+                      1 + travelScale + impact * 0.014 + residualScale;
+                  final sphereScaleY =
+                      1 + travelScale - impact * 0.017 - residualScale;
+                  final tiltX = (elevation - 0.5) * 0.10;
+                  final tiltZ = x * 0.010 + impact * 0.0015 + residual * 0.010;
 
-              final ambientOpacity = 0.18 + elevation * 0.22;
-              final ambientBlur = 26 + elevation * 22;
+                  final ambientOpacity = 0.16 + elevation * 0.18;
+                  final ambientBlur = 22 + elevation * 12;
 
-              return Stack(
-                alignment: Alignment.center,
-                clipBehavior: Clip.none,
-                children: [
-                  Positioned(
-                    bottom: 20,
-                    child: Transform.translate(
-                      offset: Offset(x * 0.6, 0),
-                      child: Transform.scale(
-                        scaleX: groundScaleX,
-                        scaleY: groundScaleY,
-                        child: Container(
-                          width: 152,
-                          height: 46,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(
-                                  alpha: groundOpacity,
-                                ),
-                                blurRadius: groundBlur,
-                                spreadRadius: groundSpread,
+                  return Stack(
+                    alignment: Alignment.center,
+                    clipBehavior: Clip.none,
+                    children: [
+                      Positioned(
+                        bottom: 20,
+                        child: Transform.translate(
+                          offset: Offset(x * 0.6, 0),
+                          child: Transform.scale(
+                            scaleX: groundScaleX,
+                            scaleY: groundScaleY,
+                            child: Container(
+                              width: 152,
+                              height: 46,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(100),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(
+                                      alpha: groundOpacity,
+                                    ),
+                                    blurRadius: groundBlur,
+                                    spreadRadius: groundSpread,
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  Transform.translate(
-                    offset: Offset(x, y),
-                    child: Transform(
-                      alignment: Alignment.center,
-                      transform: Matrix4.identity()
-                        ..setEntry(3, 2, 0.0015)
-                        ..rotateX(tiltX)
-                        ..rotateZ(tiltZ),
-                      child: Transform.scale(
-                        alignment: Alignment.bottomCenter,
-                        scaleX: sphereScaleX,
-                        scaleY: sphereScaleY,
-                        child: _IconSphere(
-                          icon: widget.icon,
-                          iconColor: widget.iconColor,
-                          innerColor: widget.innerColor,
-                          outerColor: widget.outerColor,
-                          dropBlur: dropBlur,
-                          dropOffsetY: dropOffsetY,
-                          dropOpacity: dropOpacity,
-                          ambientBlur: ambientBlur,
-                          ambientOpacity: ambientOpacity,
-                          elevation: elevation,
+                      Transform.translate(
+                        offset: Offset(x, y + residual * 0.35),
+                        child: Transform(
+                          alignment: Alignment.center,
+                          transform: Matrix4.identity()
+                            ..setEntry(3, 2, 0.0015)
+                            ..rotateX(tiltX)
+                            ..rotateZ(tiltZ),
+                          child: Transform.scale(
+                            alignment: Alignment.bottomCenter,
+                            scaleX: sphereScaleX,
+                            scaleY: sphereScaleY,
+                            child: _IconSphere(
+                              icon: widget.icon,
+                              iconColor: widget.iconColor,
+                              innerColor: widget.innerColor,
+                              outerColor: widget.outerColor,
+                              dropBlur: dropBlur,
+                              dropOffsetY: dropOffsetY,
+                              dropOpacity: dropOpacity,
+                              ambientBlur: ambientBlur,
+                              ambientOpacity: ambientOpacity,
+                              elevation: elevation,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              );
-            },
+                    ],
+                  );
+                },
+              ),
+            ),
           ),
         )
         .animate()

@@ -9,7 +9,7 @@ const onboardingPages = [
     iconColor: Color(0xFFFFFFFF),
     iconInnerCircleColor: Color(0xFF4F46E5),
     iconOuterCircleColor: Color(0x184F46E5),
-    screenBackgroundColor: Color(0xFFEEF2FF),
+    screenBackgroundColor: Color.fromARGB(255, 205, 217, 255),
     features: [
       "Quick product search & scan",
       "GST auto-calculation",
@@ -24,7 +24,7 @@ const onboardingPages = [
     iconColor: Color(0xFFFFFFFF),
     iconInnerCircleColor: Color(0xFF7C3AED),
     iconOuterCircleColor: Color(0x187C3AED),
-    screenBackgroundColor: Color(0xFFF5F3FF),
+    screenBackgroundColor: Color.fromARGB(255, 213, 206, 255),
     features: [
       "Daily/weekly/monthly reports",
       "Category-wise breakdown",
@@ -39,7 +39,7 @@ const onboardingPages = [
     iconColor: Color(0xFFFFFFFF),
     iconInnerCircleColor: Color(0xFF10B981),
     iconOuterCircleColor: Color(0x1810B981),
-    screenBackgroundColor: Color(0xFFECFDF5),
+    screenBackgroundColor: Color.fromARGB(255, 204, 255, 231),
     features: [
       "Credit / Udhaar ledger",
       "Customer purchase history",

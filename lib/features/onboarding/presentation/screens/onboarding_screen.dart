@@ -8,19 +8,31 @@ import '../widgets/onboarding_indicator.dart';
 import '../widgets/onboarding_page.dart';
 
 class OnboardingScreen extends StatefulWidget {
-
   const OnboardingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() =>
-      _OnboardingScreenState();
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState
-    extends State<OnboardingScreen> {
+class _OnboardingScreenState extends State<OnboardingScreen> {
+  final OnboardingController controller = OnboardingController();
 
-  final OnboardingController controller =
-      OnboardingController();
+  double get _pagePosition {
+    if (!controller.pageController.hasClients) {
+      return controller.currentPage.toDouble();
+    }
+
+    return controller.pageController.page ?? controller.currentPage.toDouble();
+  }
+
+  Color _lerpPageColor(List<Color> colors) {
+    final page = _pagePosition.clamp(0, colors.length - 1).toDouble();
+    final startIndex = page.floor();
+    final endIndex = page.ceil();
+    final progress = page - startIndex;
+
+    return Color.lerp(colors[startIndex], colors[endIndex], progress)!;
+  }
 
   @override
   void dispose() {
@@ -30,134 +42,109 @@ class _OnboardingScreenState
 
   @override
   Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller.pageController,
+      builder: (context, _) {
+        final backgroundColor = _lerpPageColor(
+          onboardingPages.map((page) => page.screenBackgroundColor).toList(),
+        );
+        final accentColor = _lerpPageColor(
+          onboardingPages.map((page) => page.iconInnerCircleColor).toList(),
+        );
 
-    final currentData =
-        onboardingPages[controller.currentPage];
+        return ColoredBox(
+          color: backgroundColor,
 
-    return AnimatedContainer(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
 
-      duration: const Duration(milliseconds: 500),
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
 
-      color: currentData.screenBackgroundColor,
-
-      child: Scaffold(
-
-        backgroundColor: Colors.transparent,
-
-        body: SafeArea(
-
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-
-            child: Column(
-              children: [
-
-                /// TOP SECTION
-
-                Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
-
+                child: Column(
                   children: [
+                    /// TOP SECTION
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-                    OnboardingIndicator(
-                      controller:
-                          controller.pageController,
+                      children: [
+                        OnboardingIndicator(
+                          controller: controller.pageController,
 
-                      count:
-                          onboardingPages.length,
+                          count: onboardingPages.length,
 
-                      activeColor:
-                          currentData
-                              .iconInnerCircleColor,
+                          activeColor: accentColor,
+                        ),
+
+                        TextButton(
+                          onPressed: () {
+                            context.goNamed('login');
+                          },
+
+                          child: Text(
+                            'Skip',
+
+                            style: TextStyle(
+                              color: accentColor,
+
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
 
-                    TextButton(
+                    /// PAGE VIEW
+                    Expanded(
+                      child: PageView.builder(
+                        controller: controller.pageController,
 
-                      onPressed: () {
+                        itemCount: onboardingPages.length,
 
-                        context.goNamed('login');
-                      },
+                        onPageChanged: (index) {
+                          setState(() {
+                            controller.updatePage(index);
+                          });
+                        },
 
-                      child: Text(
-                        'Skip',
-
-                        style: TextStyle(
-                          color:
-                              currentData
-                                  .iconInnerCircleColor,
-
-                          fontWeight:
-                              FontWeight.bold,
-                        ),
+                        itemBuilder: (context, index) {
+                          return OnboardingPage(
+                            data: onboardingPages[index],
+                            pageNumber: index + 1,
+                            pageCount: onboardingPages.length,
+                          );
+                        },
                       ),
                     ),
-                  ],
-                ),
 
-                /// PAGE VIEW
-
-                Expanded(
-
-                  child: PageView.builder(
-
-                    controller:
-                        controller.pageController,
-
-                    itemCount:
-                        onboardingPages.length,
-
-                    onPageChanged: (index) {
-
-                      setState(() {
-
-                        controller.updatePage(index);
-                      });
-                    },
-
-                    itemBuilder: (context, index) {
-
-                      return OnboardingPage(
-                        data: onboardingPages[index],
-                      );
-                    },
-                  ),
-                ),
-
-                /// BUTTON
-
-                OnboardingButton(
-
-                  text:
-                      controller.currentPage ==
-                              onboardingPages.length - 1
+                    /// BUTTON
+                    OnboardingButton(
+                      text: controller.currentPage == onboardingPages.length - 1
                           ? 'Get Started'
                           : 'Next',
 
-                  color:
-                      currentData.iconInnerCircleColor,
+                      color: accentColor,
 
-                  onPressed: () {
+                      onPressed: () {
+                        controller.nextPage(
+                          totalPages: onboardingPages.length,
 
-                    controller.nextPage(
-
-                      totalPages:
-                          onboardingPages.length,
-
-                      onFinished: () {
-
-                        context.goNamed('login');
+                          onFinished: () {
+                            context.goNamed('login');
+                          },
+                        );
                       },
-                    );
-                  },
-                ),
+                    ),
 
-                const SizedBox(height: 20),
-              ],
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
