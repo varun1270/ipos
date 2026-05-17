@@ -1,0 +1,247 @@
+name: ipos
+description: "Offline-first POS + CRM + Customer Commerce App"
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # ----------------------------
+  # STATE MANAGEMENT
+  # ----------------------------
+  flutter_riverpod: ^2.6.1
+  # riverpod_annotation: ^2.6.1
+
+  # ----------------------------
+  # ROUTING
+  # ----------------------------
+  go_router: ^16.0.0
+
+  # ----------------------------
+  # NETWORK
+  # ----------------------------
+  # dio: ^5.9.0
+  # pretty_dio_logger: ^1.4.0
+  # internet_connection_checker_plus: ^2.7.2
+  # connectivity_plus: ^7.0.0
+
+  # ----------------------------
+  # LOCAL DATABASE (OFFLINE)
+  # ----------------------------
+  # drift: ^2.28.1
+  # sqlite3_flutter_libs: ^0.5.39
+  # path_provider: ^2.1.5
+  # path: ^1.9.1
+
+  # ----------------------------
+  # LOCAL STORAGE
+  # ----------------------------
+  # hive: ^2.2.3
+  # hive_flutter: ^1.1.0
+
+  # ----------------------------
+  # FIREBASE
+  # ----------------------------
+  # firebase_core: ^4.0.0
+  # firebase_auth: ^6.0.0
+  # cloud_firestore: ^6.0.0
+  # firebase_messaging: ^16.0.0
+  # firebase_crashlytics: ^5.0.0
+  # firebase_analytics: ^12.0.0
+  # firebase_storage: ^13.0.0
+  # firebase_remote_config: ^6.0.0
+
+  # ----------------------------
+  # AUTH / SECURITY
+  # ----------------------------
+  # local_auth: ^2.3.0
+  # flutter_secure_storage: ^10.0.0-beta.4
+  # pin_code_fields: ^8.0.1
+
+  # ----------------------------
+  # UI / THEME
+  # ----------------------------
+  smooth_page_indicator: ^1.1.0
+  flutter_animate: ^4.5.0
+  # flex_color_scheme: ^8.3.0
+  google_fonts: ^6.3.1
+  # flutter_svg: ^2.2.0
+  # pinned lower to avoid archive version conflict with excel
+  # lottie: ^3.2.2
+  # shimmer: ^3.0.0
+  # animations: ^2.0.11
+
+  # ----------------------------
+  # CHARTS / ANALYTICS
+  # ----------------------------
+  # fl_chart: ^1.1.1
+
+  # ----------------------------
+  # LOCALIZATION
+  # ----------------------------
+  # slang: ^4.8.1
+  # slang_flutter: ^4.8.0
+
+  # ----------------------------
+  # IMAGE / MEDIA
+  # ----------------------------
+  # cached_network_image: ^3.4.1
+  # image_picker: ^1.2.0
+  # photo_view: ^0.15.0
+
+  # ----------------------------
+  # POS / PRINTING
+  # ----------------------------
+  # pdf: ^3.11.3
+  # printing: ^5.14.2
+  # esc_pos_utils_plus: ^2.0.4
+  # bluetooth_print_plus: ^2.4.6
+
+  # ----------------------------
+  # QR / BARCODE
+  # ----------------------------
+  # mobile_scanner: ^7.0.1
+  # barcode_widget: ^2.0.4
+  # qr_flutter: ^4.1.0
+
+  # ----------------------------
+  # UTILITIES
+  # ----------------------------
+  # intl: ^0.20.2
+  # uuid: ^4.5.1
+  # collection: ^1.19.1
+  # equatable: ^2.0.7
+  # logger: ^2.6.1
+  # timeago: ^3.7.1
+
+  # ----------------------------
+  # SHARE / URL / PHONE
+  # ----------------------------
+  # share_plus: ^11.0.0
+  # url_launcher: ^6.3.2
+
+  # ----------------------------
+  # FILES / EXPORTS
+  # ----------------------------
+  # file_picker: ^10.3.2
+  # csv: ^6.0.0
+  # excel: ^4.0.6
+
+  # ----------------------------
+  # DEVICE INFO
+  # ----------------------------
+  # device_info_plus: ^11.5.0
+  # package_info_plus: ^9.0.0
+
+  # ----------------------------
+  # NOTIFICATIONS
+  # ----------------------------
+  # flutter_local_notifications: ^19.4.0
+
+  # ----------------------------
+  # WEB SUPPORT
+  # ----------------------------
+  # universal_html: ^2.2.4
+
+  # ----------------------------
+  # RESPONSIVE UI
+  # ----------------------------
+  # responsive_builder: ^0.7.1
+
+  # ----------------------------
+  # LOADING / TOASTS
+  # ----------------------------
+  # flutter_easyloading: ^3.0.5
+  # bot_toast: ^4.1.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+  # ----------------------------
+  # CODE GENERATION
+  # ----------------------------
+  build_runner: ^2.7.0
+
+  # ----------------------------
+  # FREEZED
+  # ----------------------------
+  freezed: ^3.2.0
+  freezed_annotation: ^3.1.0
+
+  # ----------------------------
+  # JSON
+  # ----------------------------
+  json_serializable: ^6.11.1
+  json_annotation: ^4.9.0
+
+  # ----------------------------
+  # RIVERPOD GENERATOR
+  # ----------------------------
+  # riverpod_generator: ^2.6.5  # temporarily disabled; re-enable after resolving build/source_gen/analyzer compatibility
+
+  # ----------------------------
+  # DRIFT GENERATOR
+  # ----------------------------
+  # drift_dev: ^2.28.1
+
+  # ----------------------------
+  # HIVE GENERATOR
+  # ----------------------------
+  # hive_generator: ^2.0.1  # temporarily disabled to resolve generator version conflicts
+
+  # ----------------------------
+  # APP ICONS
+  # ----------------------------
+  flutter_launcher_icons: ^0.14.4
+
+  # ----------------------------
+  # SPLASH SCREEN
+  # ----------------------------
+  flutter_native_splash: ^2.4.4
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/logos/
+    - assets/icons/
+    - assets/images/
+    - assets/illustrations/
+    - assets/animations/
+    - assets/lottie/
+    - assets/mock/
+    - assets/translations/
+
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter/Inter-Regular.ttf
+        - asset: assets/fonts/Inter/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter/Inter-Bold.ttf
+          weight: 700
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/logos/app_logo.png
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: assets/logos/app_logo.png
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/logos/splash_logo.png
+
+  android_12:
+    image: assets/logos/splash_logo.png
+    color: "#ffffff"
