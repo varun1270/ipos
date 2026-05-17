@@ -81,7 +81,20 @@ class _OnboardingIconState extends State<OnboardingIcon>
   }
 
   double _motionScale(double t) {
-    return -math.sin((t - _groundTime) * math.pi * 2) * 0.018;
+    const scaleAmount = 0.018;
+
+    if (t < _groundTime) {
+      final fallProgress = (t / _groundTime).clamp(0.0, 1.0);
+      final easedFall = Curves.easeInOutSine.transform(fallProgress);
+      return easedFall * scaleAmount;
+    }
+
+    final riseProgress = ((t - _groundTime) / (1 - _groundTime)).clamp(
+      0.0,
+      1.0,
+    );
+    final easedRise = Curves.easeInOutSine.transform(1 - riseProgress);
+    return -easedRise * scaleAmount;
   }
 
   @override
@@ -110,8 +123,10 @@ class _OnboardingIconState extends State<OnboardingIcon>
               final dropOffsetY = 6 + proximity * 16;
               final dropOpacity = 0.06 + proximity * 0.14;
 
-              final sphereScaleX = 1 + motionScale + impact * 0.018;
-              final sphereScaleY = 1 + motionScale - impact * 0.022;
+              final groundBlend = Curves.easeInOut.transform(proximity);
+              final travelScale = motionScale * (1 - impact * groundBlend);
+              final sphereScaleX = 1 + travelScale + impact * 0.018;
+              final sphereScaleY = 1 + travelScale - impact * 0.022;
               final tiltX = (elevation - 0.5) * 0.10;
               final tiltZ = x * 0.012 + impact * 0.002;
 
