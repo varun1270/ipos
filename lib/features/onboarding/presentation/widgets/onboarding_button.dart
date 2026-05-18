@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../core/utils/responsive_utils.dart';
+
 class OnboardingButton extends StatefulWidget {
   final VoidCallback onPressed;
   final String text;
@@ -79,6 +81,11 @@ class _OnboardingButtonState extends State<OnboardingButton>
   @override
   Widget build(BuildContext context) {
     final isCompact = MediaQuery.sizeOf(context).height < 700;
+    final maxWidth = context.responsiveValue(
+      compact: double.infinity,
+      medium: 520.0,
+      expanded: 560.0,
+    );
     final buttonHeight = isCompact ? 52.0 : _height;
     final buttonDepth = isCompact ? 4.0 : _depth;
     final buttonRadius = isCompact ? 18.0 : _radius;
@@ -87,7 +94,10 @@ class _OnboardingButtonState extends State<OnboardingButton>
     final faceTop = _lighten(widget.color, 0.08);
     final faceBottom = _darken(widget.color, 0.06);
 
-    return GestureDetector(
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth),
+        child: GestureDetector(
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
       onTapCancel: _onTapCancel,
@@ -255,6 +265,8 @@ class _OnboardingButtonState extends State<OnboardingButton>
             ),
           );
         },
+      ),
+        ),
       ),
     );
   }

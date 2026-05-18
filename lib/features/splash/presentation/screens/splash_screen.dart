@@ -2,6 +2,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/responsive_utils.dart';
+import '../../../../core/widgets/adaptive_content.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -211,7 +213,8 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _initializeParticles() {
-    particles = List.generate(10, (index) {
+    final count = 10;
+    particles = List.generate(count, (index) {
       return ParticleData(
         x: _random.nextDouble() * 350 - 175, // -175 to 175
         y: _random.nextDouble() * 800, // Distribute across height
@@ -237,11 +240,18 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final scale = context.layoutScale;
+    final isWide = context.isWideScreen;
     final bottomInset = math.max(
       MediaQuery.paddingOf(context).bottom,
       MediaQuery.viewPaddingOf(context).bottom,
     );
     final progressBottomOffset = bottomInset + (size.height < 700 ? 32.0 : 20.0);
+    final progressMaxWidth = context.responsiveValue(
+      compact: size.width,
+      medium: 520.0,
+      expanded: 640.0,
+    );
 
     return Scaffold(
       backgroundColor: AppColors.splashBackground,
@@ -250,42 +260,46 @@ class _SplashScreenState extends State<SplashScreen>
         children: [
           _buildDepthBackground(),
 
+          if (isWide) ..._buildWideSideAccents(scale),
+
           // Background blobs with depth
-          RepaintBoundary(child: _buildBackgroundBlobs()),
+          RepaintBoundary(child: _buildBackgroundBlobs(scale)),
 
           // Floating particles
           RepaintBoundary(child: _buildFloatingParticles(size)),
 
           // Main content centered
           Center(
-            child: SingleChildScrollView(
-              physics: const NeverScrollableScrollPhysics(),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Logo with animations
-                  _buildAnimatedLogo(),
+            child: AdaptiveContent(
+              maxWidth: context.responsiveValue(
+                compact: double.infinity,
+                medium: 560,
+                expanded: 680,
+              ),
+              child: SingleChildScrollView(
+                physics: const NeverScrollableScrollPhysics(),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildAnimatedLogo(scale),
 
-                  const SizedBox(height: 40),
+                    SizedBox(height: 40 * scale),
 
-                  // IPOS text letter-by-letter
-                  _buildAnimatedText(),
+                    _buildAnimatedText(scale),
 
-                  const SizedBox(height: 24),
+                    SizedBox(height: 24 * scale),
 
-                  // Tagline
-                  _buildTagline(),
+                    _buildTagline(scale),
 
-                  const SizedBox(height: 48),
+                    SizedBox(height: 48 * scale),
 
-                  // Feature chips
-                  _buildFeatureChips(),
+                    _buildFeatureChips(scale),
 
-                  const SizedBox(height: 60),
+                    SizedBox(height: 60 * scale),
 
-                  // Footer text
-                  _buildFooter(),
-                ],
+                    _buildFooter(scale),
+                  ],
+                ),
               ),
             ),
           ),
@@ -295,9 +309,101 @@ class _SplashScreenState extends State<SplashScreen>
             bottom: progressBottomOffset,
             left: 0,
             right: 0,
-            child: _buildProgressBar(size),
+            child: Center(
+              child: _buildProgressBar(
+                Size(
+                  progressMaxWidth.clamp(0, size.width),
+                  size.height,
+                ),
+              ),
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  List<Widget> _buildWideSideAccents(double scale) {
+    return [
+      Positioned(
+        left: 48 * scale,
+        top: 120 * scale,
+        child: _buildAccentCard(
+          icon: Icons.point_of_sale_rounded,
+          label: 'Smart checkout',
+          scale: scale,
+          delay: 0,
+        ),
+      ),
+      Positioned(
+        right: 56 * scale,
+        top: 180 * scale,
+        child: _buildAccentCard(
+          icon: Icons.insights_rounded,
+          label: 'Live analytics',
+          scale: scale,
+          delay: 1,
+        ),
+      ),
+      Positioned(
+        left: 72 * scale,
+        bottom: 140 * scale,
+        child: _buildAccentCard(
+          icon: Icons.people_alt_rounded,
+          label: 'Customer CRM',
+          scale: scale,
+          delay: 2,
+        ),
+      ),
+    ];
+  }
+
+  Widget _buildAccentCard({
+    required IconData icon,
+    required String label,
+    required double scale,
+    required int delay,
+  }) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: Duration(milliseconds: 700 + (delay * 120)),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 16 * (1 - value)),
+            child: child,
+          ),
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: 16 * scale,
+          vertical: 12 * scale,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.textOnPrimary.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppColors.textOnPrimary.withValues(alpha: 0.22),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: AppColors.textOnPrimary, size: 20 * scale),
+            SizedBox(width: 10 * scale),
+            Text(
+              label,
+              style: TextStyle(
+                color: AppColors.textOnPrimary.withValues(alpha: 0.9),
+                fontSize: 13 * scale,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -320,7 +426,7 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  Widget _buildBackgroundBlobs() {
+  Widget _buildBackgroundBlobs(double scale) {
     return AnimatedBuilder(
       animation: _particleController,
       builder: (context, child) {
@@ -331,8 +437,8 @@ class _SplashScreenState extends State<SplashScreen>
               left: -70,
               top: -70,
               child: Transform.translate(
-                offset: _blobOffset(0, 20),
-                child: _buildBlob(220, 0.16),
+                offset: _blobOffset(0, 20 * scale),
+                child: _buildBlob(220 * scale, 0.16),
               ),
             ),
             // Top-right blob
@@ -340,8 +446,8 @@ class _SplashScreenState extends State<SplashScreen>
               right: -60,
               top: -40,
               child: Transform.translate(
-                offset: _blobOffset(1.5, 18),
-                child: _buildBlob(200, 0.12),
+                offset: _blobOffset(1.5, 18 * scale),
+                child: _buildBlob(200 * scale, 0.12),
               ),
             ),
             // Bottom-left blob
@@ -349,8 +455,8 @@ class _SplashScreenState extends State<SplashScreen>
               left: -50,
               bottom: -60,
               child: Transform.translate(
-                offset: _blobOffset(3.1, 16),
-                child: _buildBlob(210, 0.1),
+                offset: _blobOffset(3.1, 16 * scale),
+                child: _buildBlob(210 * scale, 0.1),
               ),
             ),
             // Bottom-right blob
@@ -358,8 +464,8 @@ class _SplashScreenState extends State<SplashScreen>
               right: -60,
               bottom: -40,
               child: Transform.translate(
-                offset: _blobOffset(4.4, 14),
-                child: _buildBlob(190, 0.09),
+                offset: _blobOffset(4.4, 14 * scale),
+                child: _buildBlob(190 * scale, 0.09),
               ),
             ),
           ],
@@ -439,7 +545,12 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  Widget _buildAnimatedLogo() {
+  Widget _buildAnimatedLogo(double scale) {
+    final logoSize = 124.0 * scale;
+    final innerLogo = 100.0 * scale;
+    final glowBase = 120.0 * scale;
+    final ringBase = 120.0 * scale;
+    final sparkleRadius = 64.0 * scale;
     return AnimatedBuilder(
       animation: Listenable.merge([
         logoScale,
@@ -497,8 +608,8 @@ class _SplashScreenState extends State<SplashScreen>
 
             // Glow burst effect
             Container(
-              width: 120 * glowScale.value,
-              height: 120 * glowScale.value,
+              width: glowBase * glowScale.value,
+              height: glowBase * glowScale.value,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppColors.splashGlow.withValues(
@@ -520,8 +631,8 @@ class _SplashScreenState extends State<SplashScreen>
                     ..rotateY(tiltY)
                     ..rotateZ(logoRotation.value),
                   child: Container(
-                    width: 124,
-                    height: 124,
+                    width: logoSize,
+                    height: logoSize,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
@@ -567,12 +678,12 @@ class _SplashScreenState extends State<SplashScreen>
                         child: ClipOval(
                           clipBehavior: Clip.antiAlias,
                           child: SizedBox(
-                            width: 100,
-                            height: 100,
+                            width: innerLogo,
+                            height: innerLogo,
                             child: Image.asset(
                               'assets/logos/app_logo.png',
-                              width: 100,
-                              height: 100,
+                              width: innerLogo,
+                              height: innerLogo,
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -585,24 +696,24 @@ class _SplashScreenState extends State<SplashScreen>
             ),
 
             // Pulsing rings (overlay the logo so they are visible)
-            ..._buildPulsingRings(),
+            ..._buildPulsingRings(ringBase),
 
             // Sparkle burst
-            ..._buildSparkles(),
+            ..._buildSparkles(sparkleRadius),
           ],
         );
       },
     );
   }
 
-  List<Widget> _buildPulsingRings() {
+  List<Widget> _buildPulsingRings(double ringBase) {
     return List.generate(3, (i) {
       return AnimatedBuilder(
         animation: Listenable.merge([ringScales[i], ringOpacities[i]]),
         builder: (context, child) {
           return Container(
-            width: 120 * ringScales[i].value,
-            height: 120 * ringScales[i].value,
+            width: ringBase * ringScales[i].value,
+            height: ringBase * ringScales[i].value,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
@@ -627,13 +738,24 @@ class _SplashScreenState extends State<SplashScreen>
     });
   }
 
-  List<Widget> _buildSparkles() {
+  List<Widget> _buildSparkles(double sparkleRadius) {
     return List.generate(6, (i) {
+      final angle = i * math.pi / 3;
+      final scaledEnd = Offset(
+        math.cos(angle) * sparkleRadius,
+        math.sin(angle) * sparkleRadius,
+      );
       return AnimatedBuilder(
         animation: Listenable.merge([sparkleOffsets[i], sparkleOpacities[i]]),
         builder: (context, child) {
+          final raw = sparkleOffsets[i].value;
+          final t = raw.distance / 64;
+          final offset = Offset(
+            scaledEnd.dx * t,
+            scaledEnd.dy * t,
+          );
           return Transform.translate(
-            offset: sparkleOffsets[i].value,
+            offset: offset,
             child: Opacity(
               opacity: sparkleOpacities[i].value.clamp(0.0, 1.0),
               child: Container(
@@ -651,8 +773,9 @@ class _SplashScreenState extends State<SplashScreen>
     });
   }
 
-  Widget _buildAnimatedText() {
+  Widget _buildAnimatedText(double scale) {
     final letters = ['I', 'P', 'O', 'S'];
+    final fontSize = 48.0 * scale;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -663,13 +786,13 @@ class _SplashScreenState extends State<SplashScreen>
           builder: (context, child) {
             final progress = letterAnimations[i].value;
             return Transform.translate(
-              offset: Offset(0, (1 - progress) * 30),
+              offset: Offset(0, (1 - progress) * 30 * scale),
               child: Opacity(
                 opacity: progress.clamp(0.0, 1.0),
                 child: Text(
                   letters[i],
                   style: TextStyle(
-                    fontSize: 48,
+                    fontSize: fontSize,
                     fontWeight: FontWeight.w800,
                     color: AppColors.textOnPrimary,
                     letterSpacing: 2,
@@ -695,18 +818,18 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  Widget _buildTagline() {
+  Widget _buildTagline(double scale) {
     return AnimatedBuilder(
       animation: taglineOpacity,
       builder: (context, child) {
         return Opacity(
           opacity: taglineOpacity.value,
           child: Transform.translate(
-            offset: Offset(0, (1 - taglineOpacity.value) * 20),
+            offset: Offset(0, (1 - taglineOpacity.value) * 20 * scale),
             child: Text(
               'Modern POS & Customer Commerce',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 14 * scale,
                 fontWeight: FontWeight.w500,
                 color: AppColors.textOnPrimary.withValues(alpha: 0.8),
                 letterSpacing: 0.5,
@@ -718,7 +841,7 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  Widget _buildFeatureChips() {
+  Widget _buildFeatureChips(double scale) {
     final features = [
       '💳 Smart Payments',
       '📊 Analytics',
@@ -727,8 +850,9 @@ class _SplashScreenState extends State<SplashScreen>
     ];
 
     return Wrap(
-      spacing: 12,
-      runSpacing: 12,
+      alignment: WrapAlignment.center,
+      spacing: 12 * scale,
+      runSpacing: 12 * scale,
       children: List.generate(
         features.length,
         (i) => AnimatedBuilder(
@@ -738,13 +862,13 @@ class _SplashScreenState extends State<SplashScreen>
             return Transform.scale(
               scale: progress * 0.3 + 0.7, // 0.7 to 1.0
               child: Transform.translate(
-                offset: Offset(0, (1 - progress) * 12),
+                offset: Offset(0, (1 - progress) * 12 * scale),
                 child: Opacity(
                   opacity: progress.clamp(0.0, 1.0),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 8,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 14 * scale,
+                      vertical: 8 * scale,
                     ),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -777,7 +901,7 @@ class _SplashScreenState extends State<SplashScreen>
                     child: Text(
                       features[i],
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 12 * scale,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textOnPrimary.withValues(alpha: 0.94),
                         shadows: [
@@ -799,7 +923,7 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  Widget _buildFooter() {
+  Widget _buildFooter(double scale) {
     return AnimatedBuilder(
       animation: footerOpacity,
       builder: (context, child) {
@@ -810,7 +934,7 @@ class _SplashScreenState extends State<SplashScreen>
               Text(
                 'Getting your store ready...',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 13 * scale,
                   fontWeight: FontWeight.w500,
                   color: AppColors.textOnPrimary.withValues(alpha: 0.7),
                 ),

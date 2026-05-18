@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/responsive_utils.dart';
 
 class AuthLogoSection extends StatefulWidget {
   final String title;
   final String subtitle;
+  final bool compact;
 
   const AuthLogoSection({
     super.key,
     required this.title,
     required this.subtitle,
+    this.compact = false,
   });
 
   @override
@@ -73,6 +76,10 @@ class _AuthLogoSectionState extends State<AuthLogoSection>
 
   @override
   Widget build(BuildContext context) {
+    final scale = widget.compact ? 1.0 : context.layoutScale;
+    final titleSize = (widget.compact ? 28.0 : 28.0) * scale;
+    final subtitleSize = (widget.compact ? 15.0 : 15.0) * scale;
+
     return Column(
       children: [
         AnimatedBuilder(
@@ -92,9 +99,10 @@ class _AuthLogoSectionState extends State<AuthLogoSection>
           child: _Logo3D(
             shadowStrength: _shadowStrength,
             float: _float,
+            scale: scale,
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24 * scale),
         AnimatedSwitcher(
           duration: _textSwitchDuration,
           switchInCurve: Curves.easeOutCubic,
@@ -117,6 +125,8 @@ class _AuthLogoSectionState extends State<AuthLogoSection>
             title: widget.title,
             subtitle: widget.subtitle,
             entranceController: _entranceController,
+            titleSize: titleSize,
+            subtitleSize: subtitleSize,
           ),
         ),
       ],
@@ -125,16 +135,24 @@ class _AuthLogoSectionState extends State<AuthLogoSection>
 }
 
 class _Logo3D extends StatelessWidget {
-  static const double _width = 128;
-  static const double _height = 76;
+  static const double _baseWidth = 128;
+  static const double _baseHeight = 76;
   static const double _depth = 5;
   static const double _radius = 22;
   static const String _logoAsset = 'assets/logos/app_logo.png';
 
   final Animation<double> shadowStrength;
   final Animation<double> float;
+  final double scale;
 
-  const _Logo3D({required this.shadowStrength, required this.float});
+  const _Logo3D({
+    required this.shadowStrength,
+    required this.float,
+    this.scale = 1,
+  });
+
+  double get _width => _baseWidth * scale;
+  double get _height => _baseHeight * scale;
 
   Color _darken(Color color, double amount) {
     final hsl = HSLColor.fromColor(color);
@@ -273,12 +291,16 @@ class _AnimatedTextBlock extends StatelessWidget {
   final String title;
   final String subtitle;
   final AnimationController entranceController;
+  final double titleSize;
+  final double subtitleSize;
 
   const _AnimatedTextBlock({
     super.key,
     required this.title,
     required this.subtitle,
     required this.entranceController,
+    required this.titleSize,
+    required this.subtitleSize,
   });
 
   @override
@@ -300,9 +322,9 @@ class _AnimatedTextBlock extends StatelessWidget {
           child: Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
-              fontSize: 28,
+              fontSize: titleSize,
               fontWeight: FontWeight.w800,
               height: 1.15,
             ),
@@ -314,9 +336,9 @@ class _AnimatedTextBlock extends StatelessWidget {
           child: Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
-              fontSize: 15,
+              fontSize: subtitleSize,
               fontWeight: FontWeight.w500,
               height: 1.35,
             ),
