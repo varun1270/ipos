@@ -1,5 +1,16 @@
 {
+  // Pin the Flutter SDK explicitly so the Dart extension doesn't have to
+  // search PATH. This also implies the Dart SDK location.
+  "dart.flutterSdkPath": "/Users/nishantbeniwal/development/flutter",
+
+  // PATH passed to spawned Dart/Flutter tools.
+  //
+  // We MUST include /bin, /usr/bin, /usr/sbin, /sbin so that the shebang
+  // `#!/usr/bin/env bash` in the `flutter` script can resolve `bash`.
+  // ${env:PATH} is intentionally NOT used here — when Cursor is launched
+  // from the Dock/Spotlight on macOS, that token can fail to expand for
+  // `dart.env`, leaving a PATH without /bin and breaking `flutter`.
   "dart.env": {
-    "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/Users/nishantbeniwal/.local/bin:/Users/nishantbeniwal/development/flutter/bin:${env:PATH}"
+    "PATH": "/Users/nishantbeniwal/development/flutter/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/nishantbeniwal/.local/bin:/Users/nishantbeniwal/.pub-cache/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   }
 }

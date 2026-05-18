@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
+import '../../core/theme/app_colors.dart';
 
 /// Semantic type of the snackbar. Controls accent color and default icon.
 ///

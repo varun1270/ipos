@@ -1,0 +1,36 @@
+{
+  // Flutter run configurations for the `ipos` app.
+  //
+  // Keybindings (defaults in Cursor / VS Code):
+  //   F5         -> Start Debugging  (uses the selected config; defaults to first)
+  //   Ctrl+F5    -> Run Without Debugging (faster, no debugger attached)
+  //   Shift+F5   -> Stop
+  //   Cmd+Shift+F5 -> Restart (hot restart while debugging)
+  //
+  // The first entry below ("ipos (debug)") is the default, so pressing
+  // Ctrl+F5 will launch the app in debug mode without attaching the debugger.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "ipos (debug)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "flutterMode": "debug"
+    },
+    {
+      "name": "ipos (profile)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "ipos (release)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "flutterMode": "release"
+    }
+  ]
+}

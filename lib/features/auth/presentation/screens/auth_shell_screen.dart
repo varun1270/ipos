@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/utils/responsive_utils.dart';
-import '../../../../core/widgets/app_snackbar.dart';
+import '../../../../shared/widgets/app_snackbar.dart';
 import '../animations/auth_animations.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/auth_background.dart';
@@ -259,7 +259,7 @@ class _AuthFormBody extends StatelessWidget {
                 alignment: Alignment.topCenter,
                 children: <Widget>[
                   ...previousChildren,
-                  if (currentChild != null) currentChild,
+                  ?currentChild,
                 ],
               );
             },
