@@ -1,37 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class OnboardingButton extends StatefulWidget {
-  final VoidCallback onPressed;
-  final String text;
-  final Color color;
+import '../../../../core/theme/app_colors.dart';
 
-  const OnboardingButton({
+class AuthButton extends StatefulWidget {
+  final String text;
+  final bool isLoading;
+  final VoidCallback? onPressed;
+
+  const AuthButton({
     super.key,
-    required this.onPressed,
     required this.text,
-    required this.color,
+    this.isLoading = false,
+    this.onPressed,
   });
 
   @override
-  State<OnboardingButton> createState() => _OnboardingButtonState();
+  State<AuthButton> createState() => _AuthButtonState();
 }
 
-class _OnboardingButtonState extends State<OnboardingButton>
+class _AuthButtonState extends State<AuthButton>
     with SingleTickerProviderStateMixin {
-  static const double _height = 62;
+  static const double _height = 56;
   static const double _depth = 5;
-  static const double _radius = 22;
+  static const double _radius = 18;
 
   late final AnimationController _pressController;
   late final Animation<double> _press;
+
+  bool get _isEnabled => !widget.isLoading && widget.onPressed != null;
 
   @override
   void initState() {
     super.initState();
     _pressController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 90),
+      duration: const Duration(milliseconds: 150),
       reverseDuration: const Duration(milliseconds: 220),
     );
     _press = CurvedAnimation(
@@ -48,14 +52,19 @@ class _OnboardingButtonState extends State<OnboardingButton>
   }
 
   void _onTapDown(TapDownDetails _) {
+    if (!_isEnabled) return;
+
     HapticFeedback.lightImpact();
     _pressController.forward();
   }
 
-  void _onTapUp(TapUpDetails _) {
-    _pressController.reverse().then((_) {
-      if (mounted) widget.onPressed();
-    });
+  Future<void> _onTapUp(TapUpDetails _) async {
+    if (!_isEnabled) return;
+
+    await _pressController.forward();
+    await _pressController.reverse();
+
+    if (mounted) widget.onPressed?.call();
   }
 
   void _onTapCancel() {
@@ -78,14 +87,10 @@ class _OnboardingButtonState extends State<OnboardingButton>
 
   @override
   Widget build(BuildContext context) {
-    final isCompact = MediaQuery.sizeOf(context).height < 700;
-    final buttonHeight = isCompact ? 52.0 : _height;
-    final buttonDepth = isCompact ? 4.0 : _depth;
-    final buttonRadius = isCompact ? 18.0 : _radius;
-    final textSize = isCompact ? 18.0 : 20.0;
-    final baseColor = _darken(widget.color, 0.22);
-    final faceTop = _lighten(widget.color, 0.08);
-    final faceBottom = _darken(widget.color, 0.06);
+    final buttonColor = _isEnabled ? AppColors.primary : AppColors.primaryLight;
+    final baseColor = _darken(buttonColor, 0.22);
+    final faceTop = _lighten(buttonColor, 0.08);
+    final faceBottom = _darken(buttonColor, 0.06);
 
     return GestureDetector(
       onTapDown: _onTapDown,
@@ -95,34 +100,34 @@ class _OnboardingButtonState extends State<OnboardingButton>
         animation: _press,
         builder: (context, child) {
           final t = _press.value;
-          final faceOffset = buttonDepth * t;
+          final faceOffset = _depth * t;
           final shadowBlur = 18 - (10 * t);
           final shadowSpread = -6 + (4 * t);
           final shadowYOffset = 10 - (6 * t);
-          final glowOpacity = 0.35 - (0.15 * t);
-          final foregroundColor = Colors.white.withValues(
-            alpha: 0.95 - (0.1 * t),
+          final glowOpacity = _isEnabled ? 0.35 - (0.15 * t) : 0.14;
+          final foregroundColor = AppColors.textOnPrimary.withValues(
+            alpha: _isEnabled ? 0.95 - (0.1 * t) : 0.75,
           );
 
           return SizedBox(
-            height: buttonHeight + buttonDepth,
+            height: _height + _depth,
             width: double.infinity,
             child: Stack(
               clipBehavior: Clip.none,
               alignment: Alignment.topCenter,
               children: [
                 Positioned(
-                  top: buttonDepth,
+                  top: _depth,
                   left: 0,
                   right: 0,
                   child: Container(
-                    height: buttonHeight,
+                    height: _height,
                     decoration: BoxDecoration(
                       color: baseColor,
-                      borderRadius: BorderRadius.circular(buttonRadius),
+                      borderRadius: BorderRadius.circular(_radius),
                       boxShadow: [
                         BoxShadow(
-                          color: widget.color.withValues(alpha: 0.22),
+                          color: buttonColor.withValues(alpha: 0.22),
                           blurRadius: 24,
                           offset: const Offset(0, 14),
                           spreadRadius: -10,
@@ -137,18 +142,18 @@ class _OnboardingButtonState extends State<OnboardingButton>
                     scale: 1 - (0.015 * t),
                     alignment: Alignment.topCenter,
                     child: Container(
-                      height: buttonHeight,
+                      height: _height,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(buttonRadius),
+                        borderRadius: BorderRadius.circular(_radius),
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          colors: [faceTop, widget.color, faceBottom],
+                          colors: [faceTop, buttonColor, faceBottom],
                           stops: const [0.0, 0.45, 1.0],
                         ),
                         border: Border.all(
                           color: _darken(
-                            widget.color,
+                            buttonColor,
                             0.12,
                           ).withValues(alpha: 0.45),
                           width: 1,
@@ -161,7 +166,7 @@ class _OnboardingButtonState extends State<OnboardingButton>
                             spreadRadius: shadowSpread,
                           ),
                           BoxShadow(
-                            color: widget.color.withValues(alpha: glowOpacity),
+                            color: buttonColor.withValues(alpha: glowOpacity),
                             blurRadius: 20 - (8 * t),
                             offset: Offset(0, 6 - (4 * t)),
                             spreadRadius: -4,
@@ -174,7 +179,7 @@ class _OnboardingButtonState extends State<OnboardingButton>
                         ],
                       ),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(buttonRadius),
+                        borderRadius: BorderRadius.circular(_radius),
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
@@ -182,7 +187,7 @@ class _OnboardingButtonState extends State<OnboardingButton>
                               top: 0,
                               left: 0,
                               right: 0,
-                              height: buttonHeight * 0.42,
+                              height: _height * 0.42,
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
@@ -206,48 +211,36 @@ class _OnboardingButtonState extends State<OnboardingButton>
                   top: faceOffset,
                   left: 0,
                   right: 0,
-                  height: buttonHeight,
+                  height: _height,
                   child: Transform.scale(
                     scale: 1 - (0.015 * t),
                     alignment: Alignment.topCenter,
                     child: Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            widget.text,
-                            style: TextStyle(
-                              color: foregroundColor,
-                              fontSize: textSize,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.2,
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black.withValues(alpha: 0.24),
-                                  offset: const Offset(0, 1.5),
-                                  blurRadius: 3,
-                                ),
-                              ],
+                      child: widget.isLoading
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                color: AppColors.textOnPrimary,
+                                strokeWidth: 2.4,
+                              ),
+                            )
+                          : Text(
+                              widget.text,
+                              style: TextStyle(
+                                color: foregroundColor,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.2,
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.black.withValues(alpha: 0.24),
+                                    offset: const Offset(0, 1.5),
+                                    blurRadius: 3,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Transform.translate(
-                            offset: Offset(2 * t, 0),
-                            child: Icon(
-                              Icons.arrow_forward_rounded,
-                              color: foregroundColor,
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black.withValues(alpha: 0.2),
-                                  offset: const Offset(0, 1),
-                                  blurRadius: 2,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
                   ),
                 ),
