@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
-
-class AuthTextField extends StatelessWidget {
+class AuthTextField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
   final String hintText;
   final IconData icon;
   final bool obscureText;
   final TextInputType? keyboardType;
-  final Widget? prefix;
+  final TextInputAction? textInputAction;
 
   const AuthTextField({
     super.key,
@@ -19,35 +18,127 @@ class AuthTextField extends StatelessWidget {
     required this.icon,
     this.obscureText = false,
     this.keyboardType,
-    this.prefix,
+    this.textInputAction,
   });
+
+  static InputDecoration decoration({
+    required bool focused,
+    String? hintText,
+    Widget? prefixIcon,
+    Widget? prefix,
+    Widget? suffixIcon,
+    EdgeInsetsGeometry? contentPadding,
+  }) {
+    final borderSide = BorderSide(
+      color: focused ? AppColors.primary : AppColors.border,
+      width: focused ? 1.5 : 1,
+    );
+
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: borderSide,
+    );
+
+    return InputDecoration(
+      hintText: hintText,
+      hintStyle: const TextStyle(
+        color: AppColors.textTertiary,
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+      ),
+      filled: true,
+      fillColor: focused ? AppColors.primaryVeryLight : AppColors.background,
+      contentPadding:
+          contentPadding ??
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      prefixIcon: prefixIcon,
+      prefix: prefix,
+      suffixIcon: suffixIcon,
+      border: border,
+      enabledBorder: border,
+      focusedBorder: border,
+      disabledBorder: border,
+      errorBorder: border,
+      focusedErrorBorder: border,
+    );
+  }
+
+  @override
+  State<AuthTextField> createState() => _AuthTextFieldState();
+}
+
+class _AuthTextFieldState extends State<AuthTextField> {
+  final _focusNode = FocusNode();
+  bool _focused = false;
+  bool _obscured = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(_onFocusChange);
+    _obscured = widget.obscureText;
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    setState(() => _focused = _focusNode.hasFocus);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hintText,
-        prefixIcon: Icon(icon, color: AppColors.textSecondary),
-        prefix: prefix,
-        filled: true,
-        fillColor: AppColors.background,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: const BorderSide(color: AppColors.border),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          widget.label,
+          style: const TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.1,
+          ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: const BorderSide(color: AppColors.border),
+        const SizedBox(height: 8),
+        TextField(
+          controller: widget.controller,
+          focusNode: _focusNode,
+          obscureText: widget.obscureText && _obscured,
+          keyboardType: widget.keyboardType,
+          textInputAction: widget.textInputAction,
+          style: const TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+          decoration: AuthTextField.decoration(
+            focused: _focused,
+            hintText: widget.hintText,
+            prefixIcon: Icon(
+              widget.icon,
+              size: 20,
+              color: _focused ? AppColors.primary : AppColors.textTertiary,
+            ),
+            suffixIcon: widget.obscureText
+                ? IconButton(
+                    onPressed: () => setState(() => _obscured = !_obscured),
+                    icon: Icon(
+                      _obscured
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      size: 20,
+                      color: AppColors.textTertiary,
+                    ),
+                  )
+                : null,
+          ),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.4),
-        ),
-      ),
+      ],
     );
   }
 }

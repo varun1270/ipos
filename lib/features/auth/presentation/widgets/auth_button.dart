@@ -229,7 +229,7 @@ class _AuthButtonState extends State<AuthButton>
                               widget.text,
                               style: TextStyle(
                                 color: foregroundColor,
-                                fontSize: 16,
+                                fontSize: 20,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 0.2,
                                 shadows: [
