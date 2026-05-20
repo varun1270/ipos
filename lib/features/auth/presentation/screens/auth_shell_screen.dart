@@ -380,6 +380,7 @@ class _LoginForm extends ConsumerWidget {
               password: passwordController.text.trim(),
             );
             if (!context.mounted || !success) return;
+            context.goNamed('dashboard');
             AppSnackbar.success(
               context,
               'Login successful',

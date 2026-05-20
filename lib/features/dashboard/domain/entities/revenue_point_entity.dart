@@ -1,2 +1,12 @@
-// Domain entity for a single bar in the Revenue Chart.
-// Carries the bucket label (day/week/month) and the revenue value.
+/// A single bar/point on the revenue chart.
+class RevenuePointEntity {
+  final String label;
+  final double revenue;
+  final DateTime? date;
+
+  const RevenuePointEntity({
+    required this.label,
+    required this.revenue,
+    this.date,
+  });
+}

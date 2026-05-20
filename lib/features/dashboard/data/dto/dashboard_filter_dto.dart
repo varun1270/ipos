@@ -1,4 +1,26 @@
-// Request DTO for dashboard data fetches.
-// Carries the active filters (selected shop id / "All Shops" flag and the
-// current date range — Today / Week / Month) sent to the backend or used
-// when querying the local cache.
+import '../../domain/enums/date_range_filter.dart';
+
+/// Filters sent with dashboard data requests.
+class DashboardFilterDto {
+  final String? shopId;
+  final bool allShops;
+  final DateRangeFilter dateRange;
+
+  const DashboardFilterDto({
+    this.shopId,
+    this.allShops = true,
+    this.dateRange = DateRangeFilter.today,
+  });
+
+  DashboardFilterDto copyWith({
+    String? shopId,
+    bool? allShops,
+    DateRangeFilter? dateRange,
+  }) {
+    return DashboardFilterDto(
+      shopId: shopId ?? this.shopId,
+      allShops: allShops ?? this.allShops,
+      dateRange: dateRange ?? this.dateRange,
+    );
+  }
+}
