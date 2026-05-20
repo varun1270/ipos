@@ -1,3 +1,13 @@
-// Controller for the Revenue Chart's own Day / Week / Month toggle.
-// Independent of the header's date range filter — only this chart
-// re-fetches when this toggle changes.
+import 'package:flutter/foundation.dart';
+
+import '../../domain/enums/revenue_chart_period.dart';
+
+class RevenueChartController extends ChangeNotifier {
+  RevenueChartPeriod selectedPeriod = RevenueChartPeriod.week;
+
+  void setPeriod(RevenueChartPeriod period) {
+    if (selectedPeriod == period) return;
+    selectedPeriod = period;
+    notifyListeners();
+  }
+}

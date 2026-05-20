@@ -1,67 +1,94 @@
-// Riverpod provider wiring for the dashboard feature.
-// Exposes providers for the repository, each use case, and the four
-// controllers (dashboard, date range filter, shop selector, revenue chart)
-// so screens and widgets can read them without manual plumbing.
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/datasource/dashboard_local_datasource.dart';
 import '../../data/datasource/dashboard_remote_datasource.dart';
 import '../../data/repositories/dashboard_repository_impl.dart';
 import '../../domain/repositories/dashboard_repository.dart';
-import '../../domain/usecases/dashboard_usecase.dart';
+import '../../domain/usecases/get_category_breakdown_usecase.dart';
+import '../../domain/usecases/get_dashboard_stats_usecase.dart';
+import '../../domain/usecases/get_least_selling_products_usecase.dart';
+import '../../domain/usecases/get_low_stock_alerts_usecase.dart';
+import '../../domain/usecases/get_revenue_chart_usecase.dart';
+import '../../domain/usecases/get_top_selling_products_usecase.dart';
+import '../controllers/dashboard_controller.dart';
+import '../controllers/date_range_filter_controller.dart';
+import '../controllers/revenue_chart_controller.dart';
+import '../controllers/shop_selector_controller.dart';
 
-final dashboardRemoteDataSourceProvider = Provider<DashboardRemoteDataSource>((ref) {
-  return MockAuthRemoteDataSource();
-});
+final dashboardRemoteDataSourceProvider =
+    Provider<DashboardRemoteDataSource>((ref) {
+      return MockDashboardRemoteDataSource();
+    });
 
-final dashboardLocalDataSourceProvider = Provider<DashboardLocalDataSource>((ref) {
-  return InMemoryAuthLocalDataSource();
-});
-
-final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  return AuthRepositoryImpl(
-    remoteDataSource: ref.watch(authRemoteDataSourceProvider),
-    localDataSource: ref.watch(authLocalDataSourceProvider),
+final dashboardRepositoryProvider = Provider<DashboardRepository>((ref) {
+  return DashboardRepositoryImpl(
+    remoteDataSource: ref.watch(dashboardRemoteDataSourceProvider),
   );
 });
 
-final loginUseCaseProvider = Provider<LoginUseCase>((ref) {
-  return LoginUseCase(ref.watch(authRepositoryProvider));
+final getDashboardStatsUseCaseProvider = Provider<GetDashboardStatsUseCase>((
+  ref,
+) {
+  return GetDashboardStatsUseCase(ref.watch(dashboardRepositoryProvider));
 });
 
-final registerUseCaseProvider = Provider<RegisterUseCase>((ref) {
-  return RegisterUseCase(ref.watch(authRepositoryProvider));
+final getRevenueChartUseCaseProvider = Provider<GetRevenueChartUseCase>((ref) {
+  return GetRevenueChartUseCase(ref.watch(dashboardRepositoryProvider));
 });
 
-final sendOtpUseCaseProvider = Provider<SendOtpUseCase>((ref) {
-  return SendOtpUseCase(ref.watch(authRepositoryProvider));
-});
+final getCategoryBreakdownUseCaseProvider =
+    Provider<GetCategoryBreakdownUseCase>((ref) {
+      return GetCategoryBreakdownUseCase(ref.watch(dashboardRepositoryProvider));
+    });
 
-final verifyOtpUseCaseProvider = Provider<VerifyOtpUseCase>((ref) {
-  return VerifyOtpUseCase(ref.watch(authRepositoryProvider));
-});
-
-final loginControllerProvider =
-    ChangeNotifierProvider.autoDispose<LoginController>((ref) {
-      return LoginController(
-        loginUseCase: ref.watch(loginUseCaseProvider),
-        sendOtpUseCase: ref.watch(sendOtpUseCaseProvider),
+final getTopSellingProductsUseCaseProvider =
+    Provider<GetTopSellingProductsUseCase>((ref) {
+      return GetTopSellingProductsUseCase(
+        ref.watch(dashboardRepositoryProvider),
       );
     });
 
-final registerControllerProvider =
-    ChangeNotifierProvider.autoDispose<RegisterController>((ref) {
-      return RegisterController(
-        registerUseCase: ref.watch(registerUseCaseProvider),
+final getLeastSellingProductsUseCaseProvider =
+    Provider<GetLeastSellingProductsUseCase>((ref) {
+      return GetLeastSellingProductsUseCase(
+        ref.watch(dashboardRepositoryProvider),
       );
     });
 
-final otpControllerProvider = ChangeNotifierProvider.autoDispose<OtpController>(
-  (ref) {
-    return OtpController(
-      sendOtpUseCase: ref.watch(sendOtpUseCaseProvider),
-      verifyOtpUseCase: ref.watch(verifyOtpUseCaseProvider),
-    );
-  },
-);
+final getLowStockAlertsUseCaseProvider = Provider<GetLowStockAlertsUseCase>((
+  ref,
+) {
+  return GetLowStockAlertsUseCase(ref.watch(dashboardRepositoryProvider));
+});
+
+final dateRangeFilterControllerProvider =
+    ChangeNotifierProvider<DateRangeFilterController>((ref) {
+      return DateRangeFilterController();
+    });
+
+final shopSelectorControllerProvider =
+    ChangeNotifierProvider<ShopSelectorController>((ref) {
+      return ShopSelectorController();
+    });
+
+final revenueChartControllerProvider =
+    ChangeNotifierProvider<RevenueChartController>((ref) {
+      return RevenueChartController();
+    });
+
+final dashboardControllerProvider =
+    ChangeNotifierProvider<DashboardController>((ref) {
+      return DashboardController(
+        getDashboardStatsUseCase: ref.watch(getDashboardStatsUseCaseProvider),
+        getRevenueChartUseCase: ref.watch(getRevenueChartUseCaseProvider),
+        getCategoryBreakdownUseCase: ref.watch(
+          getCategoryBreakdownUseCaseProvider,
+        ),
+        getTopSellingProductsUseCase: ref.watch(
+          getTopSellingProductsUseCaseProvider,
+        ),
+        getLeastSellingProductsUseCase: ref.watch(
+          getLeastSellingProductsUseCaseProvider,
+        ),
+        getLowStockAlertsUseCase: ref.watch(getLowStockAlertsUseCaseProvider),
+      );
+    });
