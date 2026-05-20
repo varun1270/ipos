@@ -97,6 +97,305 @@ Primary router file:
 - lib/core/router/router_provider.dart
 
 Current routes defined:
+# iPOS — Project Directory Structure
+
+> Flutter application (`name: ipos`, version `1.0.0+1`, Dart SDK `^3.8.1`)
+>
+> The codebase follows a feature-first layout combined with **Clean Architecture**
+> layers inside each feature (`data` → `domain` → `presenter`) and uses the
+> **BLoC** pattern for state management with **Injector** for dependency injection.
+
+---
+
+## 1. Top-Level Layout
+
+```
+ipos-block/
+├── android/                    # Android native project (Gradle, manifests, Kotlin)
+├── ios/                        # iOS native project (Xcode workspace, Podfile, Swift)
+├── web/                        # Flutter web entry (index.html, manifest, icons)
+├── windows/                    # Flutter desktop (Windows) runner
+├── assets/                     # Bundled images / static assets (e.g. logo.png)
+├── dependencies/               # Vendored / forked local packages
+│   └── platform_device_id/     # Local package referenced via `path:` in pubspec
+├── lib/                        # All Dart application code (see §2)
+├── test/                       # Widget / unit tests
+│   └── widget_test.dart
+├── analysis_options.yaml       # Lint rules (extends flutter_lints)
+├── pubspec.yaml                # Package manifest & dependencies
+├── pubspec.lock                # Locked dependency versions
+├── .metadata                   # Flutter tool metadata
+├── .flutter-plugins-dependencies
+├── .gitignore
+└── README.md
+```
+
+---
+
+## 2. `lib/` — Application Source
+
+```
+lib/
+├── main.dart                   # App entry point + MaterialApp + MultiBlocProvider
+├── di.dart                     # Dependency-injection registration (Injector)
+│
+├── api/                        # HTTP networking layer (Dio)
+│   ├── api_constants.dart      # Base URLs + endpoint path constants
+│   ├── api_response.dart       # Generic ApiResponse<T> wrapper (success/failure)
+│   ├── api_service.dart        # Singleton Dio client + Dev/Prod environment switch
+│   ├── environment.dart        # Environment abstraction (baseUrl, apiKey, type)
+│   ├── interceptors.dart       # Dio request/response/error interceptors
+│   └── network.dart            # Connectivity check + snackbar helper
+│
+├── models/                     # Shared cross-feature DTOs
+│   ├── error_response.dart
+│   └── generic_response.dart
+│
+├── hive_service/               # Hive (local NoSQL) helpers
+│   ├── hive_box_keys.dart      # Box & key string constants
+│   └── hive_cart_service.dart  # Save/retrieve cart-related maps
+│
+├── splash_screen/              # Feature: Splash
+│   └── presenter/
+│       └── screen/
+│           ├── splash_screen.dart
+│           └── splash_screen_m.dart   # Active splash widget used by main.dart
+│
+├── login_screens/              # Feature: Login (Clean Architecture)
+│   ├── data/
+│   │   └── model/
+│   │       ├── login_model.dart            # Response model
+│   │       └── login_request_model.dart    # Request DTO
+│   ├── domain/
+│   │   ├── provider/
+│   │   │   └── login_provider.dart         # Dio call to /login endpoint
+│   │   └── repository/
+│   │       └── login_repository.dart       # Repository wrapping provider
+│   └── presenter/
+│       ├── bloc/
+│       │   ├── login_bloc.dart             # Bloc<LoginEvent, LoginState>
+│       │   ├── login_event.dart            # part-of login_bloc.dart
+│       │   └── login_state.dart            # part-of login_bloc.dart
+│       └── screen/
+│           └── login_screen.dart           # Login UI
+│
+├── logout/                     # Feature: Logout (Clean Architecture)
+│   ├── model/
+│   │   ├── logout_request_model.dart
+│   │   └── logout_response_model.dart
+│   ├── domain/
+│   │   ├── logout_provider.dart
+│   │   └── logout_repository.dart
+│   └── bloc/
+│       ├── logout_bloc.dart
+│       ├── logout_event.dart
+│       └── logout_state.dart
+│
+└── utils/                      # Cross-cutting utilities
+    ├── app_constants.dart      # Misc app-wide constants
+    ├── navigation_servie.dart  # Global NavigatorState key (NavigationService)
+    │
+    ├── constants/              # Static design / config constants
+    │   ├── app_assets.dart     # Asset path strings
+    │   ├── app_theme.dart      # Colors, theme tokens
+    │   ├── regex_const.dart    # Validation regexes
+    │   ├── routes.dart         # Named route name constants
+    │   └── strings.dart        # Static strings (appName, etc.)
+    │
+    ├── shared/                 # Shared design primitives
+    │   ├── colors.dart
+    │   └── text_styles.dart
+    │
+    ├── hive/
+    │   └── hive_register_adapter.dart   # Registers Hive type adapters + opens boxes
+    │
+    └── common_widgets/         # Reusable UI widgets
+        ├── common.dart                  # vSpace/hSpace + tiny helpers
+        ├── styles.dart                  # TextStyle helpers
+        ├── shared_pref.dart             # SharedPreferences wrapper
+        ├── text_widget.dart
+        ├── input_field.dart
+        ├── center_text_divider.dart
+        ├── generic_bottomsheet.dart
+        ├── message_box_widget.dart
+        ├── buttons/
+        │   ├── add_item_button.dart
+        │   ├── add_time_delay_button.dart
+        │   ├── filled_button_widget.dart
+        │   ├── filledbox_button_widget.dart
+        │   ├── outline_button_widget.dart
+        │   ├── outlinebox_button_widget.dart
+        │   ├── radio_button_widget.dart
+        │   ├── multi_select_radio_button.dart
+        │   └── social_login_button_widget.dart
+        └── textfields/
+            ├── textfield_widget.dart
+            ├── label_textfield_widget.dart
+            ├── label_textfield_row_widget.dart
+            ├── label_password_textfield.dart
+            └── label_password_textfield_widget.dart
+```
+
+---
+
+## 3. Architecture Overview
+
+The project applies **Clean Architecture per feature**. Each feature folder
+(e.g. `login_screens/`, `logout/`) is split into three layers:
+
+| Layer       | Folder       | Responsibility                                                |
+| ----------- | ------------ | ------------------------------------------------------------- |
+| Data        | `data/model` | Request/response DTOs, JSON (de)serialization                 |
+| Domain      | `domain/`    | `provider/` performs the raw API call; `repository/` exposes business-friendly APIs to the Bloc |
+| Presenter   | `presenter/` | `bloc/` holds UI state (Bloc / Events / States); `screen/` renders widgets that consume Bloc state |
+
+### Data flow for a typical action
+
+```
+UI (screen)
+   │ dispatches event
+   ▼
+Bloc  ──(Injector.get<Repository>())──▶  Repository
+                                            │
+                                            ▼
+                                         Provider ──(ApiService.dio)──▶  Backend
+                                            │
+                                            ▼
+                                       ApiResponse<T>
+   ▲                                        │
+   └──────────── State emitted ◀────────────┘
+```
+
+### Dependency Injection — `lib/di.dart`
+
+Uses [`injector`](https://pub.dev/packages/injector) (with `injectable` /
+`get_it` also present in `pubspec.yaml`). Registrations happen in
+`setupDependencyInjections()` which is called from `main()`:
+
+```dart
+Injector injector = Injector.appInstance;
+injector.registerSingleton<ApiService>(() => ApiService());
+injector.registerDependency<LoginRepository>(() => LoginRepository());
+injector.registerDependency<LoginProvider>(() => LoginProvider(api: injector.get<ApiService>()));
+```
+
+### Networking — `lib/api/`
+
+- `ApiService` is a singleton factory exposing a configured `Dio` instance.
+- It supports two environments (`_Dev`, `_Prod`) selected via `EnvironmentType`.
+- `interceptors.dart` injects auth headers / logging into every request.
+- `ApiResponse` wraps both success (`Response`) and failure (`DioException`) results.
+
+### Local Storage
+
+- **Hive** — opened in `main.dart` via `Hive.initFlutter()` then
+  `HiveRegisterAdapter.registerAdapters()` + `openBox()` (see
+  `lib/utils/hive/hive_register_adapter.dart`). Feature-specific helpers live in
+  `lib/hive_service/`.
+- **SharedPreferences** — wrapped by `lib/utils/common_widgets/shared_pref.dart`
+  (e.g. stores `vendorColorTheme`).
+
+### State Management
+
+- `flutter_bloc` (^8.1.1) — one Bloc per feature, registered globally via
+  `MultiBlocProvider` in `MyApp.build` (currently `LoginBloc`).
+- Events/states are declared as `part`-files of their Bloc for cohesion.
+
+### Navigation
+
+- Centralised through `NavigationService.navigatorKey` (a global
+  `GlobalKey<NavigatorState>`).
+- Named routes are defined as constants in `lib/utils/constants/routes.dart`
+  and registered in `MaterialApp.routes`. Initial route is
+  `Routes.splashRoute` → after 3 s the splash screen pushes
+  `Routes.loginRoute`.
+
+---
+
+## 4. App Bootstrap (`main.dart`)
+
+1. `WidgetsFlutterBinding.ensureInitialized()`
+2. `setupDependencyInjections()` — register singletons & dependencies
+3. `configLoading()` — configure `flutter_easyloading` UI
+4. `Hive.initFlutter()` → register adapters → open boxes
+5. `SharedPref.load()` — preload preferences
+6. `runApp(MyApp(...))` — wraps the app in `MultiBlocProvider` and
+   `MaterialApp` with the named-routes table.
+
+---
+
+## 5. Notable Third-Party Integrations (from `pubspec.yaml`)
+
+| Concern             | Packages                                                                |
+| ------------------- | ----------------------------------------------------------------------- |
+| State Management    | `flutter_bloc`, `bloc`, `equatable`                                     |
+| DI                  | `injector`, `injectable`, `get_it`                                      |
+| Networking          | `dio`, `http`, `connectivity_plus`                                      |
+| Local Storage       | `hive`, `hive_flutter`, `shared_preferences`, `path_provider`           |
+| Auth / Social Login | `firebase_auth`, `google_sign_in`, `flutter_facebook_auth`, `sign_in_with_apple` |
+| Firebase            | `firebase_core`, `firebase_messaging`, `firebase_crashlytics`, `firebase_remote_config` |
+| Payments            | `flutter_stripe`, `pay`                                                 |
+| Realtime / Chat     | `pubnub`                                                                |
+| KYC                 | `veriff_flutter`                                                        |
+| Location / Maps     | `geolocator`, `geocoding`, `flutter_google_places`                      |
+| UI / UX             | `flutter_easyloading`, `fluttertoast`, `cached_network_image`, `flutter_svg`, `loading_animation_widget`, `pull_to_refresh`, `infinite_scroll_pagination`, `auto_size_text`, `flutter_html`, `flutter_widget_from_html`, `pinch_zoom`, `country_picker`, `bubble`, `grouped_list`, `flutter_rating_bar`, `otp_pin_field` |
+| PDFs / Files        | `syncfusion_flutter_pdf`, `open_file`, `image_picker`                   |
+| Notifications       | `flutter_local_notifications`, `firebase_messaging`                     |
+| Misc                | `permission_handler`, `url_launcher`, `crypto`, `intl`, `collection`, `flutter_phone_direct_caller`, `flutter_multi_formatter`, `flutter_typeahead`, `device_info_plus`, `platform_device_id` (local) |
+
+Dev dependencies: `flutter_test`, `hive_generator`, `flutter_lints`.
+
+---
+
+## 6. Assets & Vendored Packages
+
+- **`assets/`** — currently contains `logo.png`. Registered in `pubspec.yaml`
+  via `assets: - assets/`. The splash screen renders this image.
+- **`dependencies/platform_device_id/`** — a locally-vendored copy of the
+  `platform_device_id` plugin referenced through a `path:` dependency. Useful
+  for patching the upstream plugin without forking on pub.dev.
+
+---
+
+## 7. Tests
+
+`test/widget_test.dart` is the default Flutter starter test. There is currently
+no broader test coverage; new tests would mirror the feature layout under
+`test/<feature>/...`.
+
+---
+
+## 8. Conventions & Tips for Adding New Features
+
+When adding a new feature (e.g. `employees/`), mirror the existing pattern:
+
+```
+lib/employees/
+├── data/
+│   └── model/
+│       ├── employee_model.dart
+│       └── employee_request_model.dart
+├── domain/
+│   ├── provider/employee_provider.dart      # Dio call
+│   └── repository/employee_repository.dart  # Business API
+└── presenter/
+    ├── bloc/
+    │   ├── employee_bloc.dart
+    │   ├── employee_event.dart   # part of employee_bloc.dart
+    │   └── employee_state.dart   # part of employee_bloc.dart
+    └── screen/employee_screen.dart
+```
+
+Then:
+
+1. Add API endpoint(s) to `lib/api/api_constants.dart`.
+2. Register the new `Provider` and `Repository` in `lib/di.dart`.
+3. Add the new route(s) in `lib/utils/constants/routes.dart` and wire them in
+   `MaterialApp.routes` in `main.dart`.
+4. Provide the new Bloc via `MultiBlocProvider` (or scoped `BlocProvider` on
+   the screen itself).
+5. Reuse widgets from `lib/utils/common_widgets/` and tokens from
+   `lib/utils/constants/` / `lib/utils/shared/` for consistency.
 
 - /splash (name: splash)
 - /login (name: login)

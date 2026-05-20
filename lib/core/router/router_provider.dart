@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/routes/auth_routes.dart';
+import '../../features/dashboard/routes/dashboard_routes.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
 
@@ -23,6 +24,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             const MaterialPage(child: OnboardingScreen()),
       ),
       ...authRoutes,
+      ...dashboardRoutes,
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(child: Text('Route not found: ${state.matchedLocation}')),
