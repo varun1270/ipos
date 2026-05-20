@@ -27,10 +27,11 @@ abstract final class DashboardResponsive {
   }
 
   static double statCardAspectRatio(BuildContext context) {
+    // Lower ratio = taller cells. Medium uses 4 columns, so cells need more height.
     return context.responsiveValue(
-      compact: 1.2,
-      medium: 1.45,
-      expanded: 1.65,
+      compact: 1.12,
+      medium: 0.84,
+      expanded: 1.32,
     );
   }
 
@@ -41,8 +42,8 @@ abstract final class DashboardResponsive {
   static double quickActionAspectRatio(BuildContext context) {
     return context.responsiveValue(
       compact: 0.82,
-      medium: 1.2,
-      expanded: 1.45,
+      medium: 0.92,
+      expanded: 1.25,
     );
   }
 
