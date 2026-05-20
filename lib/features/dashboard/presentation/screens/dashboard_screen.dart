@@ -4,15 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/dashboard_providers.dart';
 import '../utils/dashboard_load_utils.dart';
-import '../widgets/banner/start_selling_banner.dart';
-import '../widgets/category_breakdown/category_breakdown_section.dart';
-import '../widgets/header/dashboard_header.dart';
-import '../widgets/low_stock/low_stock_alerts_section.dart';
-import '../widgets/product_lists/least_selling_products_section.dart';
-import '../widgets/product_lists/top_selling_products_section.dart';
-import '../widgets/quick_actions/quick_actions_grid.dart';
-import '../widgets/revenue_chart/revenue_chart_section.dart';
-import '../widgets/stat_cards/stat_cards_grid.dart';
+import '../widgets/dashboard_page_content.dart';
+import '../widgets/shared/dashboard_3d_styles.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -34,50 +27,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.surface,
-      body: SafeArea(
-        child: dashboard.isLoading && dashboard.stats == null
-            ? const Center(child: CircularProgressIndicator())
-            : RefreshIndicator(
-                onRefresh: () => loadDashboard(ref),
-                child: CustomScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  slivers: [
-                    const SliverToBoxAdapter(child: DashboardHeader()),
-                    if (dashboard.errorMessage != null)
+      body: DashboardBackground(
+        child: SafeArea(
+          child: dashboard.isLoading && dashboard.stats == null
+              ? const Center(child: CircularProgressIndicator())
+              : RefreshIndicator(
+                  color: AppColors.primary,
+                  onRefresh: () => loadDashboard(ref),
+                  child: CustomScrollView(
+                    physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics(),
+                    ),
+                    slivers: [
                       SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(
-                            dashboard.errorMessage!,
-                            style: const TextStyle(color: AppColors.error),
-                          ),
+                        child: DashboardPageContent(
+                          errorMessage: dashboard.errorMessage,
                         ),
                       ),
-                    const SliverToBoxAdapter(child: StatCardsGrid()),
-                    const SliverToBoxAdapter(child: SizedBox(height: 20)),
-                    const SliverToBoxAdapter(child: QuickActionsGrid()),
-                    const SliverToBoxAdapter(child: SizedBox(height: 20)),
-                    const SliverToBoxAdapter(child: StartSellingBanner()),
-                    const SliverToBoxAdapter(child: SizedBox(height: 20)),
-                    const SliverToBoxAdapter(child: RevenueChartSection()),
-                    const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                    const SliverToBoxAdapter(
-                      child: CategoryBreakdownSection(),
-                    ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                    const SliverToBoxAdapter(
-                      child: TopSellingProductsSection(),
-                    ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                    const SliverToBoxAdapter(
-                      child: LeastSellingProductsSection(),
-                    ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                    const SliverToBoxAdapter(child: LowStockAlertsSection()),
-                    const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+        ),
       ),
     );
   }

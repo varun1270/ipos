@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../shared/hard_3d_surface.dart';
 
 class UserAvatar extends StatelessWidget {
   final String initials;
@@ -9,22 +10,18 @@ class UserAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {},
-        borderRadius: BorderRadius.circular(999),
-        child: CircleAvatar(
-          radius: 18,
-          backgroundColor: AppColors.primaryVeryLight,
-          child: Text(
-            initials,
-            style: const TextStyle(
-              color: AppColors.primary,
-              fontWeight: FontWeight.w700,
-              fontSize: 14,
-            ),
-          ),
+    return Hard3DSurface(
+      color: AppColors.primary,
+      borderRadius: 999,
+      depth: 3,
+      padding: const EdgeInsets.all(10),
+      onTap: () {},
+      child: Text(
+        initials,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w800,
+          fontSize: 14,
         ),
       ),
     );

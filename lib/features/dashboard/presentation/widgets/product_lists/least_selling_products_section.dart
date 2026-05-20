@@ -6,29 +6,31 @@ import '../shared/dashboard_section_header.dart';
 import 'product_rank_tile.dart';
 
 class LeastSellingProductsSection extends ConsumerWidget {
-  const LeastSellingProductsSection({super.key});
+  final bool inRow;
+
+  const LeastSellingProductsSection({super.key, this.inRow = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final products = ref.watch(dashboardControllerProvider).leastProducts;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const DashboardSectionHeader(title: 'Least Selling Products'),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: products.isEmpty
-              ? const SizedBox(
-                  height: 120,
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              : Column(
-                  children: products
-                      .map((product) => ProductRankTile(product: product))
-                      .toList(),
-                ),
+        DashboardSectionHeader(
+          title: 'Least Selling Products',
+          actionLabel: inRow ? null : 'View all',
         ),
+        products.isEmpty
+            ? const SizedBox(
+                height: 120,
+                child: Center(child: CircularProgressIndicator()),
+              )
+            : Column(
+                children: products
+                    .map((product) => ProductRankTile(product: product))
+                    .toList(),
+              ),
       ],
     );
   }

@@ -3,31 +3,40 @@ import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../domain/entities/low_stock_entity.dart';
 import '../../../domain/enums/stock_alert_level.dart';
+import '../shared/hard_3d_surface.dart';
 
 class LowStockTile extends StatelessWidget {
   final LowStockEntity item;
+  final bool inGrid;
 
-  const LowStockTile({super.key, required this.item});
+  const LowStockTile({super.key, required this.item, this.inGrid = false});
 
   @override
   Widget build(BuildContext context) {
     final isCritical = item.alertLevel == StockAlertLevel.critical;
     final accentColor = isCritical ? AppColors.error : AppColors.warning;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+    return Hard3DSurface(
+      color: accentColor,
+      borderRadius: 18,
+      depth: 4,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: accentColor.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: accentColor.withValues(alpha: 0.25)),
-      ),
+      expandWidth: true,
       child: Row(
         children: [
-          Icon(
-            isCritical ? Icons.error_outline : Icons.warning_amber_outlined,
-            color: accentColor,
-            size: 22,
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withValues(alpha: 0.18),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
+            ),
+            child: Icon(
+              isCritical ? Icons.error_outline : Icons.warning_amber_rounded,
+              color: Colors.white,
+              size: 22,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -39,16 +48,16 @@ class LowStockTile extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    color: AppColors.textPrimary,
+                    color: Colors.white,
                     fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   '${item.currentQuantity} ${item.unit} left · reorder at ${item.reorderLevel}',
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.82),
                     fontSize: 12,
                   ),
                 ),
@@ -56,17 +65,18 @@ class LowStockTile extends StatelessWidget {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(999),
+              color: Colors.black.withValues(alpha: 0.18),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.24)),
             ),
             child: Text(
               item.alertLevel.label,
-              style: TextStyle(
-                color: accentColor,
+              style: const TextStyle(
+                color: Colors.white,
                 fontSize: 11,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ),

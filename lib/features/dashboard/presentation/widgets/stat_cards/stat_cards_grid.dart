@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../core/utils/responsive_utils.dart';
 import '../../../domain/entities/dashboard_stats_entity.dart';
 import '../../providers/dashboard_providers.dart';
 import '../../utils/dashboard_format_utils.dart';
+import '../../utils/dashboard_responsive.dart';
 import 'stat_card.dart';
 
 class StatCardsGrid extends ConsumerWidget {
@@ -16,32 +18,36 @@ class StatCardsGrid extends ConsumerWidget {
     final stats = dashboard.stats;
 
     if (stats == null) {
-      return const SizedBox(
-        height: 220,
-        child: Center(child: CircularProgressIndicator()),
+      return SizedBox(
+        height: context.responsiveValue(compact: 220, medium: 160, expanded: 150),
+        child: const Center(child: CircularProgressIndicator()),
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: GridView.count(
-        crossAxisCount: 2,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.35,
-        children: stats.metrics
-            .map(
-              (metric) => StatCard(
-                title: metric.title,
-                value: _formatValue(metric, metric.valueFor(dateRange)),
-                trendPercent: metric.trendFor(dateRange),
-                subLabel: dateRange.comparisonLabel,
+    return GridView.count(
+      crossAxisCount: DashboardResponsive.statCardColumns(context),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: DashboardResponsive.columnGap(context),
+      crossAxisSpacing: DashboardResponsive.columnGap(context),
+      childAspectRatio: DashboardResponsive.statCardAspectRatio(context),
+      children: stats.metrics
+          .toList()
+          .asMap()
+          .entries
+          .map(
+            (entry) => StatCard(
+              index: entry.key,
+              title: entry.value.title,
+              value: _formatValue(
+                entry.value,
+                entry.value.valueFor(dateRange),
               ),
-            )
-            .toList(),
-      ),
+              trendPercent: entry.value.trendFor(dateRange),
+              subLabel: dateRange.comparisonLabel,
+            ),
+          )
+          .toList(),
     );
   }
 

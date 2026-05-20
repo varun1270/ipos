@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/utils/responsive_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../utils/dashboard_responsive.dart';
+import '../shared/dashboard_3d_styles.dart';
+import '../shared/hard_3d_surface.dart';
 import 'date_range_filter_chip.dart';
 import 'notification_bell.dart';
 import 'shop_selector_dropdown.dart';
@@ -11,33 +15,124 @@ class DashboardHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 8, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Text(
-                'IPOS',
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Expanded(child: ShopSelectorDropdown()),
-              const NotificationBell(),
-              const SizedBox(width: 4),
-              const UserAvatar(initials: 'NB'),
-            ],
+    final inlineFilters = DashboardResponsive.useInlineHeaderFilters(context);
+
+    return Dashboard3DSurface.panel(
+      padding: EdgeInsets.all(context.responsiveValue(
+        compact: 16,
+        medium: 18,
+        expanded: 20,
+      )),
+      expandWidth: true,
+      child: inlineFilters ? _buildWideHeader(context) : _buildCompactHeader(context),
+    );
+  }
+
+  Widget _buildCompactHeader(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildTopRow(context),
+        const SizedBox(height: 16),
+        const DateRangeFilterChip(),
+      ],
+    );
+  }
+
+  Widget _buildWideHeader(BuildContext context) {
+    return Row(
+      children: [
+        Hard3DSurface(
+          color: AppColors.primary,
+          borderRadius: 14,
+          depth: 4,
+          padding: EdgeInsets.symmetric(
+            horizontal: context.responsiveValue(
+              compact: 12,
+              medium: 14,
+              expanded: 16,
+            ),
+            vertical: 10,
           ),
-          const SizedBox(height: 16),
-          const DateRangeFilterChip(),
-        ],
-      ),
+          child: Text(
+            'IPOS',
+            style: TextStyle(
+              color: AppColors.textOnPrimary,
+              fontSize: context.responsiveValue(
+                compact: 18,
+                medium: 19,
+                expanded: 20,
+              ),
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.8,
+              shadows: const [
+                Shadow(color: Colors.black26, offset: Offset(0, 1), blurRadius: 2),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(
+          width: context.responsiveValue(
+            compact: 10,
+            medium: 14,
+            expanded: 16,
+          ),
+        ),
+        SizedBox(
+          width: context.responsiveValue(
+            compact: 180,
+            medium: 220,
+            expanded: 260,
+          ),
+          child: const ShopSelectorDropdown(),
+        ),
+        const Spacer(),
+        SizedBox(
+          width: context.responsiveValue(
+            compact: 260,
+            medium: 300,
+            expanded: 340,
+          ),
+          child: const DateRangeFilterChip(),
+        ),
+        SizedBox(
+          width: context.responsiveValue(
+            compact: 8,
+            medium: 10,
+            expanded: 12,
+          ),
+        ),
+        const NotificationBell(),
+        const SizedBox(width: 6),
+        const UserAvatar(initials: 'NB'),
+      ],
+    );
+  }
+
+  Widget _buildTopRow(BuildContext context) {
+    return Row(
+      children: [
+        Hard3DSurface(
+          color: AppColors.primary,
+          borderRadius: 14,
+          depth: 4,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: const Text(
+            'IPOS',
+            style: TextStyle(
+              color: AppColors.textOnPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.8,
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        const Expanded(child: ShopSelectorDropdown()),
+        const NotificationBell(),
+        const SizedBox(width: 6),
+        const UserAvatar(initials: 'NB'),
+      ],
     );
   }
 }

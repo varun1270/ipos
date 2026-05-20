@@ -16,6 +16,7 @@ class ShopSelectorDropdown extends ConsumerWidget {
     return DropdownButtonHideUnderline(
       child: DropdownButton<String>(
         value: controller.selectedShopId,
+        isExpanded: true,
         icon: const Icon(Icons.keyboard_arrow_down, size: 20),
         style: const TextStyle(
           color: AppColors.textPrimary,

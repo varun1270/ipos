@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../shared/hard_3d_surface.dart';
 
 class NotificationBell extends StatelessWidget {
   const NotificationBell({super.key});
@@ -10,21 +11,28 @@ class NotificationBell extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        IconButton(
-          onPressed: () {},
-          tooltip: 'Notifications',
-          icon: const Icon(Icons.notifications_none),
-          color: AppColors.textPrimary,
+        Hard3DSurface(
+          color: AppColors.info,
+          borderRadius: 14,
+          depth: 3,
+          padding: const EdgeInsets.all(10),
+          onTap: () {},
+          child: const Icon(
+            Icons.notifications_none_rounded,
+            color: Colors.white,
+            size: 22,
+          ),
         ),
         Positioned(
-          top: 10,
-          right: 10,
+          top: 2,
+          right: 2,
           child: Container(
-            width: 8,
-            height: 8,
-            decoration: const BoxDecoration(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
               color: AppColors.error,
               shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 1.5),
             ),
           ),
         ),

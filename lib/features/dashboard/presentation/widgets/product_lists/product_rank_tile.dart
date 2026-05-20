@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../domain/entities/product_sales_entity.dart';
 import '../../utils/dashboard_format_utils.dart';
+import '../shared/hard_3d_surface.dart';
 
 class ProductRankTile extends StatelessWidget {
   final ProductSalesEntity product;
@@ -16,72 +17,72 @@ class ProductRankTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: highlightRank
-                  ? AppColors.primaryVeryLight
-                  : AppColors.surfaceVariant,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              '${product.rank}',
-              style: TextStyle(
-                color: highlightRank
-                    ? AppColors.primary
-                    : AppColors.textSecondary,
-                fontWeight: FontWeight.w700,
+    final accent = highlightRank ? AppColors.primary : AppColors.info;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Hard3DSurface.light(
+        borderRadius: 18,
+        depth: 3,
+        padding: const EdgeInsets.all(14),
+        expandWidth: true,
+        child: Row(
+          children: [
+            Hard3DSurface(
+              color: accent,
+              borderRadius: 12,
+              depth: 3,
+              padding: const EdgeInsets.all(8),
+              child: SizedBox(
+                width: 16,
+                child: Center(
+                  child: Text(
+                    '${product.rank}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.productName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.productName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${product.category} · ${product.unitsSold} sold',
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
+                  const SizedBox(height: 4),
+                  Text(
+                    '${product.category} · ${product.unitsSold} sold',
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            formatDashboardCurrency(product.revenue),
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
+            const SizedBox(width: 8),
+            Text(
+              formatDashboardCurrency(product.revenue),
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

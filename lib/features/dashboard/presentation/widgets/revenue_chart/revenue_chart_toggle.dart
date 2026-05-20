@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../domain/enums/revenue_chart_period.dart';
+import '../shared/hard_3d_surface.dart';
 
 class RevenueChartToggle extends StatelessWidget {
   final RevenueChartPeriod selectedPeriod;
@@ -15,36 +16,20 @@ class RevenueChartToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Hard3DSurface.light(
+      borderRadius: 14,
+      depth: 3,
       padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(12),
-      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: RevenueChartPeriod.values.map((period) {
-          final isSelected = selectedPeriod == period;
-
           return Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: ChoiceChip(
-              label: Text(period.label),
-              selected: isSelected,
-              onSelected: (_) => onPeriodChanged(period),
-              selectedColor: AppColors.background,
-              backgroundColor: Colors.transparent,
-              labelStyle: TextStyle(
-                color: isSelected
-                    ? AppColors.primary
-                    : AppColors.textSecondary,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                fontSize: 13,
-              ),
-              side: BorderSide(
-                color: isSelected ? AppColors.primary : Colors.transparent,
-              ),
-              showCheckmark: false,
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: Hard3DChip(
+              label: period.label,
+              color: AppColors.primary,
+              selected: selectedPeriod == period,
+              onTap: () => onPeriodChanged(period),
             ),
           );
         }).toList(),
