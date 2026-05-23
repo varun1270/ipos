@@ -42,9 +42,9 @@ class StatCard extends StatelessWidget {
     final valueColor =
         isDark ? colors.textPrimary : Colors.white;
 
-    final subLabelColor = isDark
-        ? colors.textTertiary
-        : Colors.white.withValues(alpha: 0.78);
+    // final subLabelColor = isDark
+    //     ? colors.textTertiary
+    //     : Colors.white.withValues(alpha: 0.78);
 
     final iconBackground = isDark
         ? DarkUiStyle.accentTint(accent)
@@ -186,9 +186,9 @@ class StatCard extends StatelessWidget {
         expanded: 26,
       );
 
-  double _subLabelSize(BuildContext context) => context.responsiveValue(
-        compact: 12,
-        medium: 11,
-        expanded: 12,
-      );
+  // double _subLabelSize(BuildContext context) => context.responsiveValue(
+  //       compact: 12,
+  //       medium: 11,
+  //       expanded: 12,
+  //     );
 }
