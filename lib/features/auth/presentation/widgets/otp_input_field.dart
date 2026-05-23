@@ -36,7 +36,10 @@ class OtpInputField extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.4),
+          borderSide: BorderSide(
+            color: context.adaptivePrimary,
+            width: 1.4,
+          ),
         ),
       ),
     );

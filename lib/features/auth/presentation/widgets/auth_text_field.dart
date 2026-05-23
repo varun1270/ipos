@@ -33,7 +33,7 @@ class AuthTextField extends StatefulWidget {
   }) {
     final colors = context.appColors;
     final borderSide = BorderSide(
-      color: focused ? AppColors.primary : colors.border,
+      color: focused ? context.adaptivePrimary : colors.border,
       width: focused ? 1.5 : 1,
     );
 
@@ -128,7 +128,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
             prefixIcon: Icon(
               widget.icon,
               size: 20,
-              color: _focused ? AppColors.primary : colors.textTertiary,
+              color: _focused ? context.adaptivePrimary : colors.textTertiary,
             ),
             suffixIcon: widget.obscureText
                 ? IconButton(

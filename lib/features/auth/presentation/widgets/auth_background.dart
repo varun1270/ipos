@@ -16,23 +16,28 @@ class AuthBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
 
+    final isDark = context.isDarkTheme;
+
     return DecoratedBox(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: wideLayout
-              ? [
-                  colors.background,
-                  colors.surface,
-                  colors.surface,
-                ]
-              : [
-                  colors.primaryUltraLight,
-                  colors.background,
-                  colors.surface,
-                ],
-        ),
+        color: isDark ? colors.background : null,
+        gradient: isDark
+            ? null
+            : LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: wideLayout
+                    ? [
+                        colors.background,
+                        colors.surface,
+                        colors.surface,
+                      ]
+                    : [
+                        colors.primaryUltraLight,
+                        colors.background,
+                        colors.surface,
+                      ],
+              ),
       ),
       child: child,
     );

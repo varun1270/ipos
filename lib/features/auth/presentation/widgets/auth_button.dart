@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/dark_ui_style.dart';
 
 class AuthButton extends StatefulWidget {
   final String text;
@@ -87,10 +88,14 @@ class _AuthButtonState extends State<AuthButton>
 
   @override
   Widget build(BuildContext context) {
-    final buttonColor = _isEnabled ? AppColors.primary : AppColors.primaryLight;
-    final baseColor = _darken(buttonColor, 0.22);
-    final faceTop = _lighten(buttonColor, 0.08);
-    final faceBottom = _darken(buttonColor, 0.06);
+    final isDark = DarkUiStyle.isDark(context);
+    final brand = context.adaptivePrimary;
+    final buttonColor = _isEnabled
+        ? (isDark ? DarkUiStyle.face3D(context, brand) : AppColors.primary)
+        : (isDark ? brand.withValues(alpha: 0.5) : AppColors.primaryLight);
+    final baseColor = _darken(buttonColor, isDark ? 0.14 : 0.22);
+    final faceTop = _lighten(buttonColor, isDark ? 0.04 : 0.08);
+    final faceBottom = _darken(buttonColor, isDark ? 0.04 : 0.06);
 
     return GestureDetector(
       onTapDown: _onTapDown,
@@ -104,7 +109,11 @@ class _AuthButtonState extends State<AuthButton>
           final shadowBlur = 18 - (10 * t);
           final shadowSpread = -6 + (4 * t);
           final shadowYOffset = 10 - (6 * t);
-          final glowOpacity = _isEnabled ? 0.35 - (0.15 * t) : 0.14;
+          final glowOpacity = isDark
+              ? DarkUiStyle.glowOpacity(enabled: _isEnabled, pressT: t)
+              : (_isEnabled ? 0.35 - (0.15 * t) : 0.14);
+          final coloredShadowAlpha =
+              isDark ? DarkUiStyle.coloredShadowAlpha : 0.22;
           final foregroundColor = AppColors.textOnPrimary.withValues(
             alpha: _isEnabled ? 0.95 - (0.1 * t) : 0.75,
           );
@@ -127,9 +136,9 @@ class _AuthButtonState extends State<AuthButton>
                       borderRadius: BorderRadius.circular(_radius),
                       boxShadow: [
                         BoxShadow(
-                          color: buttonColor.withValues(alpha: 0.22),
-                          blurRadius: 24,
-                          offset: const Offset(0, 14),
+                          color: buttonColor.withValues(alpha: coloredShadowAlpha),
+                          blurRadius: isDark ? 12 : 24,
+                          offset: Offset(0, isDark ? 8 : 14),
                           spreadRadius: -10,
                         ),
                       ],
@@ -171,11 +180,12 @@ class _AuthButtonState extends State<AuthButton>
                             offset: Offset(0, 6 - (4 * t)),
                             spreadRadius: -4,
                           ),
-                          BoxShadow(
-                            color: Colors.white.withValues(alpha: 0.12),
-                            blurRadius: 6,
-                            offset: const Offset(0, -2),
-                          ),
+                          if (!isDark)
+                            BoxShadow(
+                              color: Colors.white.withValues(alpha: 0.12),
+                              blurRadius: 6,
+                              offset: const Offset(0, -2),
+                            ),
                         ],
                       ),
                       child: ClipRRect(
@@ -183,24 +193,25 @@ class _AuthButtonState extends State<AuthButton>
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            Positioned(
-                              top: 0,
-                              left: 0,
-                              right: 0,
-                              height: _height * 0.42,
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Colors.white.withValues(alpha: 0.22),
-                                      Colors.white.withValues(alpha: 0),
-                                    ],
+                            if (!isDark)
+                              Positioned(
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                height: _height * 0.42,
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Colors.white.withValues(alpha: 0.22),
+                                        Colors.white.withValues(alpha: 0),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                       ),

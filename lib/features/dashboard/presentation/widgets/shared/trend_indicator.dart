@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/dark_ui_style.dart';
 import '../shared/hard_3d_surface.dart';
 
 class TrendIndicator extends StatelessWidget {
@@ -25,7 +26,7 @@ class TrendIndicator extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(999),
-          color: color.withValues(alpha: 0.14),
+          color: DarkUiStyle.accentTint(color),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

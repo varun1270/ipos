@@ -18,22 +18,11 @@ abstract final class Dashboard3DStyles {
     );
   }
 
-  static Color statAccentForIndex(BuildContext context, int index) {
-    if (context.isDarkTheme) {
-      return switch (index) {
-        0 => AppColors.primaryOled,
-        1 => AppColors.infoOled,
-        2 => AppColors.successOled,
-        _ => AppColors.accentPurpleOled,
-      };
-    }
-    return switch (index) {
-      0 => AppColors.primary,
-      1 => AppColors.info,
-      2 => AppColors.success,
-      _ => AppColors.accentPurple,
-    };
-  }
+  /// Onboarding-muted indigo in dark, brand primary in light.
+  static Color brandPrimary(BuildContext context) => context.adaptivePrimary;
+
+  static Color statAccentForIndex(BuildContext context, int index) =>
+      AppColors.statAccentForIndex(context, index);
 
   static IconData statIconForIndex(int index) {
     return switch (index) {

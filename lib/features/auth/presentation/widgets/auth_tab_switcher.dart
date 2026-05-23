@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/dark_ui_style.dart';
 
 class AuthTabSwitcher extends StatelessWidget {
   final int selectedIndex;
@@ -118,8 +119,12 @@ class _SlidingPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const color = AppColors.primary;
-    final base = _darken(color, 0.2);
+    final isDark = DarkUiStyle.isDark(context);
+    final brand = context.adaptivePrimary;
+    final color =
+        isDark ? DarkUiStyle.face3D(context, brand) : AppColors.primary;
+    final base = _darken(color, isDark ? 0.14 : 0.2);
+    final glowAlpha = isDark ? DarkUiStyle.coloredShadowAlpha : 0.35;
 
     return SizedBox(
       height: height + depth,
@@ -163,8 +168,8 @@ class _SlidingPill extends StatelessWidget {
                     offset: const Offset(0, 4),
                   ),
                   BoxShadow(
-                    color: color.withValues(alpha: 0.35),
-                    blurRadius: 10,
+                    color: color.withValues(alpha: glowAlpha),
+                    blurRadius: isDark ? 6 : 10,
                     offset: const Offset(0, 2),
                     spreadRadius: -2,
                   ),
@@ -172,21 +177,27 @@ class _SlidingPill extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(radius),
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: Container(
-                    height: height * 0.4,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.white.withValues(alpha: 0.28),
-                          Colors.white.withValues(alpha: 0),
-                        ],
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (!isDark)
+                      Align(
+                        alignment: Alignment.topCenter,
+                        child: Container(
+                          height: height * 0.4,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.white.withValues(alpha: 0.28),
+                                Colors.white.withValues(alpha: 0),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                  ],
                 ),
               ),
             ),

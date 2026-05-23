@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/dark_ui_style.dart';
 
 abstract final class Hard3DColors {
   static Color lighten(Color color, [double amount = 0.08]) {
@@ -107,45 +108,41 @@ class _Hard3DSurfaceState extends State<Hard3DSurface>
 
   void _onTapCancel() => _pressController.reverse();
 
+  Color _resolveFaceColor(BuildContext context, Color color) {
+    if (!widget.enabled) return color.withValues(alpha: 0.55);
+    if (!DarkUiStyle.isDark(context)) return color;
+
+    final hsl = HSLColor.fromColor(color);
+    // Keep neutral surfaces (white, grays) as-is.
+    if (hsl.saturation < 0.12) return color;
+    return DarkUiStyle.face3D(context, color);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isDark = context.isDarkTheme;
-    final faceColor =
+    final isDark = DarkUiStyle.isDark(context);
+    final rawFace =
         widget.enabled ? widget.color : widget.color.withValues(alpha: 0.55);
+    final faceColor = _resolveFaceColor(context, rawFace);
     final sizedChild = Padding(padding: widget.padding, child: widget.child);
 
     final body = AnimatedBuilder(
       animation: _press,
       builder: (context, child) {
         final t = _press.value;
-        final faceOffset = isDark ? 1.0 * t : widget.depth * t;
+        final faceOffset = widget.depth * t;
 
-        if (isDark) {
-          final colors = context.appColors;
-
-          return Transform.translate(
-            offset: Offset(0, faceOffset),
-            child: Container(
-              decoration: BoxDecoration(
-                color: faceColor,
-                borderRadius: BorderRadius.circular(widget.borderRadius),
-                border: Border.all(color: colors.border),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(widget.borderRadius),
-                child: child,
-              ),
-            ),
-          );
-        }
-
-        final baseColor = Hard3DColors.darken(faceColor, 0.22);
-        final faceTop = Hard3DColors.lighten(faceColor, 0.08);
-        final faceBottom = Hard3DColors.darken(faceColor, 0.06);
+        final baseColor = Hard3DColors.darken(faceColor, isDark ? 0.14 : 0.22);
+        final faceTop = Hard3DColors.lighten(faceColor, isDark ? 0.04 : 0.08);
+        final faceBottom = Hard3DColors.darken(faceColor, isDark ? 0.04 : 0.06);
         final shadowBlur = 18 - (10 * t);
         final shadowSpread = -6 + (4 * t);
         final shadowYOffset = 10 - (6 * t);
-        final glowOpacity = widget.enabled ? 0.35 - (0.15 * t) : 0.14;
+        final glowOpacity = isDark
+            ? DarkUiStyle.glowOpacity(enabled: widget.enabled, pressT: t)
+            : (widget.enabled ? 0.35 - (0.15 * t) : 0.14);
+        final coloredShadowAlpha =
+            isDark ? DarkUiStyle.coloredShadowAlpha : 0.22;
 
         return Transform.translate(
           offset: Offset(0, faceOffset),
@@ -175,9 +172,9 @@ class _Hard3DSurfaceState extends State<Hard3DSurface>
                     spreadRadius: 0,
                   ),
                   BoxShadow(
-                    color: faceColor.withValues(alpha: 0.22),
-                    blurRadius: 24,
-                    offset: Offset(0, 14 + widget.depth),
+                    color: faceColor.withValues(alpha: coloredShadowAlpha),
+                    blurRadius: isDark ? 12 : 24,
+                    offset: Offset(0, isDark ? 8 + widget.depth : 14 + widget.depth),
                     spreadRadius: -10,
                   ),
                   BoxShadow(
@@ -192,11 +189,12 @@ class _Hard3DSurfaceState extends State<Hard3DSurface>
                     offset: Offset(0, 6 - (4 * t)),
                     spreadRadius: -4,
                   ),
-                  BoxShadow(
-                    color: Colors.white.withValues(alpha: 0.14),
-                    blurRadius: 6,
-                    offset: const Offset(0, -2),
-                  ),
+                  if (!isDark)
+                    BoxShadow(
+                      color: Colors.white.withValues(alpha: 0.14),
+                      blurRadius: 6,
+                      offset: const Offset(0, -2),
+                    ),
                 ],
               ),
               child: ClipRRect(
@@ -204,26 +202,27 @@ class _Hard3DSurfaceState extends State<Hard3DSurface>
                 child: Stack(
                   fit: StackFit.passthrough,
                   children: [
-                    const Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: 48,
-                      child: ExcludeSemantics(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Color(0x3DFFFFFF),
-                                Color(0x00FFFFFF),
-                              ],
+                    if (!isDark)
+                      const Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: 48,
+                        child: ExcludeSemantics(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Color(0x3DFFFFFF),
+                                  Color(0x00FFFFFF),
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
                     child!,
                   ],
                 ),
@@ -236,7 +235,7 @@ class _Hard3DSurfaceState extends State<Hard3DSurface>
     );
 
     return Padding(
-      padding: EdgeInsets.only(bottom: isDark ? 0 : widget.depth),
+      padding: EdgeInsets.only(bottom: widget.depth),
       child: _interactive
           ? GestureDetector(
               onTapDown: _onTapDown,

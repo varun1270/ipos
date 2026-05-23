@@ -54,6 +54,8 @@ class _AuthBrandPanelState extends State<AuthBrandPanel>
       expanded: 48.0,
     );
 
+    final isDark = context.isDarkTheme;
+
     return AnimatedBuilder(
       animation: _ambientController,
       builder: (context, child) {
@@ -63,11 +65,17 @@ class _AuthBrandPanelState extends State<AuthBrandPanel>
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                AppColors.primary,
-                AppColors.primaryDark,
-                AppColors.primaryExtraDark,
-              ],
+              colors: isDark
+                  ? const [
+                      Color(0xFF1C1C28),
+                      Color(0xFF121218),
+                      Color(0xFF000000),
+                    ]
+                  : [
+                      AppColors.primary,
+                      AppColors.primaryDark,
+                      AppColors.primaryExtraDark,
+                    ],
               stops: const [0, 0.55, 1],
             ),
           ),

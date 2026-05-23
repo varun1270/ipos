@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/utils/responsive_utils.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/dark_ui_style.dart';
+import '../../../../../core/utils/responsive_utils.dart';
 import '../shared/hard_3d_surface.dart';
 
 class StartSellingBanner extends StatelessWidget {
@@ -12,80 +13,71 @@ class StartSellingBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isWide = context.isWideScreen;
+    final padding = EdgeInsets.all(context.responsiveValue(
+      compact: 22,
+      medium: 24,
+      expanded: 26,
+    ));
 
     if (context.isDarkTheme) {
-      return _buildPlainBanner(context, isWide);
+      return Hard3DSurface.light(
+        color: context.appColors.elevatedSurface,
+        borderRadius: 24,
+        depth: 3,
+        padding: padding,
+        expandWidth: true,
+        child: isWide ? _buildWideContent(context, dark: true) : _buildCompactContent(context, dark: true),
+      );
     }
 
     return Hard3DSurface(
       color: AppColors.primary,
       borderRadius: 24,
       depth: 6,
-      padding: EdgeInsets.all(context.responsiveValue(
-        compact: 22,
-        medium: 24,
-        expanded: 26,
-      )),
+      padding: padding,
       expandWidth: true,
       child: isWide ? _buildWideContent(context) : _buildCompactContent(context),
     );
   }
 
-  Widget _buildPlainBanner(BuildContext context, bool isWide) {
-    final colors = context.appColors;
-
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(context.responsiveValue(
-        compact: 22,
-        medium: 24,
-        expanded: 26,
-      )),
-      decoration: BoxDecoration(
-        color: colors.elevatedSurface,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: colors.border),
-      ),
-      child: isWide ? _buildWideContent(context, plain: true) : _buildCompactContent(context, plain: true),
-    );
-  }
-
-  Widget _buildWideContent(BuildContext context, {bool plain = false}) {
+  Widget _buildWideContent(BuildContext context, {bool dark = false}) {
     return Row(
       children: [
-        Expanded(flex: 3, child: _buildTextBlock(context, plain: plain)),
+        Expanded(flex: 3, child: _buildTextBlock(context, dark: dark)),
         const SizedBox(width: 20),
-        _buildIconOrb(context, plain: plain),
+        _buildIconOrb(context, dark: dark),
       ],
     );
   }
 
-  Widget _buildCompactContent(BuildContext context, {bool plain = false}) {
+  Widget _buildCompactContent(BuildContext context, {bool dark = false}) {
     return Row(
       children: [
-        Expanded(child: _buildTextBlock(context, plain: plain)),
+        Expanded(child: _buildTextBlock(context, dark: dark)),
         const SizedBox(width: 12),
-        _buildIconOrb(context, plain: plain),
+        _buildIconOrb(context, dark: dark),
       ],
     );
   }
 
-  Widget _buildTextBlock(BuildContext context, {bool plain = false}) {
+  Widget _buildTextBlock(BuildContext context, {bool dark = false}) {
     final colors = context.appColors;
+    final accent = context.adaptivePrimary;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Ready to start selling?',
           style: TextStyle(
-            color: plain ? colors.textPrimary : AppColors.textOnPrimary,
+            color: dark ? colors.textPrimary : AppColors.textOnPrimary,
             fontSize: context.responsiveValue(
               compact: 20,
               medium: 22,
               expanded: 24,
             ),
             fontWeight: FontWeight.w800,
-            shadows: plain
+            shadows: dark
                 ? null
                 : const [
                     Shadow(
@@ -100,7 +92,7 @@ class StartSellingBanner extends StatelessWidget {
         Text(
           'Open the POS and process your first order today.',
           style: TextStyle(
-            color: plain
+            color: dark
                 ? colors.textSecondary
                 : AppColors.textOnPrimary.withValues(alpha: 0.92),
             fontSize: context.responsiveValue(
@@ -112,20 +104,20 @@ class StartSellingBanner extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        if (plain)
-          FilledButton(
-            onPressed: () {},
-            style: FilledButton.styleFrom(
-              backgroundColor: context.adaptivePrimary,
-              foregroundColor: AppColors.textOnPrimary,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-            child: const Text(
+        if (dark)
+          Hard3DSurface(
+            color: accent,
+            borderRadius: 14,
+            depth: 3,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            onTap: () {},
+            child: Text(
               'Start Selling',
-              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
+              style: TextStyle(
+                color: AppColors.textOnPrimary,
+                fontWeight: FontWeight.w800,
+                fontSize: 15,
+              ),
             ),
           )
         else
@@ -148,27 +140,28 @@ class StartSellingBanner extends StatelessWidget {
     );
   }
 
-  Widget _buildIconOrb(BuildContext context, {bool plain = false}) {
+  Widget _buildIconOrb(BuildContext context, {bool dark = false}) {
     final size = context.responsiveValue(
       compact: 72.0,
       medium: 80.0,
       expanded: 88.0,
     );
+    final accent = context.adaptivePrimary;
 
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: plain
-            ? context.adaptivePrimary.withValues(alpha: 0.14)
+        color: dark
+            ? DarkUiStyle.accentTint(accent)
             : Colors.white.withValues(alpha: 0.16),
         border: Border.all(
-          color: plain
-              ? context.adaptivePrimary.withValues(alpha: 0.35)
+          color: dark
+              ? accent.withValues(alpha: 0.28)
               : Colors.white.withValues(alpha: 0.35),
         ),
-        boxShadow: plain
+        boxShadow: dark
             ? null
             : [
                 BoxShadow(
@@ -180,7 +173,7 @@ class StartSellingBanner extends StatelessWidget {
       ),
       child: Icon(
         Icons.storefront_rounded,
-        color: plain ? context.adaptivePrimary : AppColors.textOnPrimary,
+        color: dark ? accent : AppColors.textOnPrimary,
         size: size * 0.5,
       ),
     );

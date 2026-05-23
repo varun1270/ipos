@@ -199,6 +199,24 @@ abstract final class AppColors {
   static Color accentPurpleAdaptive(BuildContext context) =>
       context.isDarkTheme ? accentPurpleOled : accentPurple;
 
+  /// Stat / chart accent by index — onboarding-muted in dark.
+  static Color statAccentForIndex(BuildContext context, int index) {
+    if (!context.isDarkTheme) {
+      return switch (index) {
+        0 => primary,
+        1 => info,
+        2 => success,
+        _ => accentPurple,
+      };
+    }
+    return switch (index) {
+      0 => primaryOled,
+      1 => infoOled,
+      2 => successOled,
+      _ => accentPurpleOled,
+    };
+  }
+
   // Shadows (brand-tinted)
   static const Color primaryShadow = Color(0x334F46E5);
   static const Color accentPurpleShadow = Color(0x337C3AED);

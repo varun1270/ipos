@@ -20,15 +20,18 @@ class _RevenueChartState extends State<RevenueChart>
   static const _entryDuration = Duration(milliseconds: 480);
   static const _selectDuration = Duration(milliseconds: 160);
   static const _selectReverseDuration = Duration(milliseconds: 240);
-  static const _tooltipGap = 10.0;
   static const _tooltipReserve = 44.0;
 
   late final AnimationController _entryController;
   late final AnimationController _selectionController;
   late List<RevenuePointEntity> _animatedPoints;
 
+  final _chartKey = GlobalKey();
+
   int? _pressedIndex;
   int? _hoveredIndex;
+  bool _isTrackingPointer = false;
+  int? _lastHapticIndex;
 
   int? get _activeIndex => _pressedIndex ?? _hoveredIndex;
 
@@ -54,6 +57,8 @@ class _RevenueChartState extends State<RevenueChart>
       _animatedPoints = widget.points;
       _pressedIndex = null;
       _hoveredIndex = null;
+      _isTrackingPointer = false;
+      _lastHapticIndex = null;
       _releaseSelection(immediate: true);
       _entryController
         ..reset()
@@ -81,28 +86,89 @@ class _RevenueChartState extends State<RevenueChart>
     return true;
   }
 
-  void _onBarPressDown(int index) {
-    if (_pressedIndex == index) return;
+  int? _indexForPointer(PointerEvent event, int barCount) {
+    final box = _chartKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize || barCount == 0) return null;
 
-    HapticFeedback.lightImpact();
-    setState(() => _pressedIndex = index);
+    final local = box.globalToLocal(event.position);
+    if (local.dx < 0 ||
+        local.dx > box.size.width ||
+        local.dy < 0 ||
+        local.dy > box.size.height) {
+      return null;
+    }
+
+    final index = (local.dx / box.size.width * barCount).floor();
+    return index.clamp(0, barCount - 1);
+  }
+
+  void _focusBar(
+    int index, {
+    bool fromPointer = false,
+    bool haptic = false,
+  }) {
+    final current = fromPointer ? _pressedIndex : _hoveredIndex;
+    if (current == index) return;
+
+    setState(() {
+      if (fromPointer) {
+        _pressedIndex = index;
+      } else {
+        _hoveredIndex = index;
+      }
+    });
+
+    if (haptic && _lastHapticIndex != index) {
+      HapticFeedback.selectionClick();
+      _lastHapticIndex = index;
+    }
     _activateSelection();
   }
 
-  void _onBarPressEnd() {
-    if (_pressedIndex == null) return;
+  void _onPointerDown(PointerDownEvent event, int barCount) {
+    final index = _indexForPointer(event, barCount);
+    if (index == null) return;
+
+    _isTrackingPointer = true;
+    _focusBar(index, fromPointer: true, haptic: true);
+  }
+
+  void _onPointerMove(PointerMoveEvent event, int barCount) {
+    if (!_isTrackingPointer) return;
+
+    final index = _indexForPointer(event, barCount);
+    if (index == null || index == _pressedIndex) return;
+
+    _focusBar(index, fromPointer: true, haptic: true);
+  }
+
+  void _onPointerUp(int barCount) {
+    if (!_isTrackingPointer) return;
+
+    _isTrackingPointer = false;
+    _lastHapticIndex = null;
     setState(() => _pressedIndex = null);
     _syncSelection();
   }
 
-  void _onBarHoverEnter(int index) {
-    if (_hoveredIndex == index) return;
-    setState(() => _hoveredIndex = index);
-    _activateSelection();
+  void _onPointerHover(PointerHoverEvent event, int barCount) {
+    if (_isTrackingPointer) return;
+
+    final index = _indexForPointer(event, barCount);
+    if (index == null) {
+      if (_hoveredIndex == null) return;
+      setState(() => _hoveredIndex = null);
+      _syncSelection();
+      return;
+    }
+
+    _focusBar(index);
   }
 
-  void _onBarHoverExit(int index) {
-    if (_hoveredIndex != index) return;
+  void _onPointerExit() {
+    if (_isTrackingPointer) return;
+
+    if (_hoveredIndex == null) return;
     setState(() => _hoveredIndex = null);
     Future.microtask(_syncSelection);
   }
@@ -156,22 +222,45 @@ class _RevenueChartState extends State<RevenueChart>
     final isDark = context.isDarkTheme;
     final hasSelection = _activeIndex != null;
 
-    return Padding(
-      padding: const EdgeInsets.only(top: _tooltipReserve),
-      child: AnimatedBuilder(
-        animation: Listenable.merge([_entryController, _selectionController]),
-        builder: (context, _) {
-          final selectionT = Curves.easeOutCubic.transform(
-            _selectionController.value,
-          );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final chartWidth = constraints.maxWidth;
 
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: points.asMap().entries.map((entry) {
+        return AnimatedBuilder(
+          animation: Listenable.merge([_entryController, _selectionController]),
+          builder: (context, _) {
+            final selectionT = Curves.easeOutCubic.transform(
+              _selectionController.value,
+            );
+
+            final barCount = points.length;
+            final activeIndex = _activeIndex;
+            final showValue = activeIndex != null;
+
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: _tooltipReserve),
+                  child: MouseRegion(
+                    onExit: (_) => _onPointerExit(),
+                    cursor: SystemMouseCursors.click,
+                    child: Listener(
+                      key: _chartKey,
+                      behavior: HitTestBehavior.opaque,
+                      onPointerDown: (e) => _onPointerDown(e, barCount),
+                      onPointerMove: (e) => _onPointerMove(e, barCount),
+                      onPointerUp: (_) => _onPointerUp(barCount),
+                      onPointerCancel: (_) => _onPointerUp(barCount),
+                      onPointerHover: (e) => _onPointerHover(e, barCount),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: points.asMap().entries.map((entry) {
               final point = entry.value;
               final index = entry.key;
-              final isActive = _activeIndex == index;
-              final isSelected = isActive && selectionT > 0;
+              final isActive = activeIndex == index;
+              final isSelected = isActive;
+              final selectionStrength = isActive ? selectionT.clamp(0.0, 1.0) : 0.0;
 
               final barProgress = Curves.easeOutCubic.transform(
                 _staggeredProgress(index, points.length),
@@ -188,7 +277,7 @@ class _RevenueChartState extends State<RevenueChart>
                     1.0,
                   );
               final animatedHeight = isSelected
-                  ? (baseHeight * (1 + 0.1 * selectionT)).clamp(0.0, 1.0)
+                  ? (baseHeight * (1 + 0.1 * selectionStrength)).clamp(0.0, 1.0)
                   : baseHeight;
 
               final barColor = Color.lerp(
@@ -197,26 +286,18 @@ class _RevenueChartState extends State<RevenueChart>
                 index / (points.length - 1).clamp(1, 999),
               )!;
 
-              final dimOthers =
-                  hasSelection && !isActive ? (1 - 0.35 * selectionT) : 1.0;
+              final dimOthers = hasSelection && !isActive
+                  ? (1 - 0.35 * selectionStrength)
+                  : 1.0;
 
               return Expanded(
-                child: MouseRegion(
-                  onEnter: (_) => _onBarHoverEnter(index),
-                  onExit: (_) => _onBarHoverExit(index),
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTapDown: (_) => _onBarPressDown(index),
-                    onTapUp: (_) => _onBarPressEnd(),
-                    onTapCancel: _onBarPressEnd,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isSelected ? 1 : 4,
-                      ),
-                      child: Opacity(
-                        opacity: dimOthers,
-                        child: Column(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSelected ? 1 : 4,
+                  ),
+                  child: Opacity(
+                    opacity: dimOthers,
+                    child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Expanded(
@@ -225,48 +306,28 @@ class _RevenueChartState extends State<RevenueChart>
                                   final barHeight =
                                       constraints.maxHeight * animatedHeight;
 
-                                  return Stack(
-                                    clipBehavior: Clip.none,
+                                  return Align(
                                     alignment: Alignment.bottomCenter,
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.bottomCenter,
-                                        child: Transform.scale(
-                                          scaleX: isSelected
-                                              ? 1 + (0.14 * selectionT)
-                                              : 1,
-                                          scaleY: isSelected
-                                              ? 1 + (0.04 * selectionT)
-                                              : 1,
-                                          alignment: Alignment.bottomCenter,
-                                          child: SizedBox(
-                                            height: barHeight,
-                                            width: double.infinity,
-                                            child: _BarShape(
-                                              barColor: barColor,
-                                              barProgress: barProgress,
-                                              isDark: isDark,
-                                              isSelected: isSelected,
-                                              selectionT: selectionT,
-                                            ),
-                                          ),
+                                    child: Transform.scale(
+                                      scaleX: isSelected
+                                          ? 1 + (0.14 * selectionStrength)
+                                          : 1,
+                                      scaleY: isSelected
+                                          ? 1 + (0.04 * selectionStrength)
+                                          : 1,
+                                      alignment: Alignment.bottomCenter,
+                                      child: SizedBox(
+                                        height: barHeight,
+                                        width: double.infinity,
+                                        child: _BarShape(
+                                          barColor: barColor,
+                                          barProgress: barProgress,
+                                          isDark: isDark,
+                                          isSelected: isSelected,
+                                          selectionT: selectionStrength,
                                         ),
                                       ),
-                                      if (isSelected)
-                                        Positioned(
-                                          bottom: barHeight + _tooltipGap,
-                                          left: 0,
-                                          right: 0,
-                                          child: _ValueTooltip(
-                                            value: formatDashboardCurrency(
-                                              point.revenue,
-                                            ),
-                                            barColor: barColor,
-                                            progress: selectionT,
-                                            isDark: isDark,
-                                          ),
-                                        ),
-                                    ],
+                                    ),
                                   );
                                 },
                               ),
@@ -297,7 +358,7 @@ class _RevenueChartState extends State<RevenueChart>
                             AnimatedOpacity(
                               duration: const Duration(milliseconds: 120),
                               opacity: isSelected
-                                  ? (1 - selectionT).clamp(0.0, 1.0)
+                                  ? (1 - selectionStrength).clamp(0.0, 1.0)
                                   : labelProgress,
                               child: Transform.translate(
                                 offset: Offset(0, 4 * (1 - labelProgress)),
@@ -318,14 +379,43 @@ class _RevenueChartState extends State<RevenueChart>
                         ),
                       ),
                     ),
+              );
+                        }).toList(),
+                      ),
+                    ),
                   ),
                 ),
-              );
-            }).toList(),
-          );
-        },
-      ),
+                if (showValue)
+                  Positioned(
+                    top: 0,
+                    left: _barCenterX(activeIndex, barCount, chartWidth) - 72,
+                    width: 144,
+                    child: _ValueTooltip(
+                      value: formatDashboardCurrency(
+                        points[activeIndex].revenue,
+                      ),
+                      barColor: Color.lerp(
+                        isDark ? AppColors.primaryOled : AppColors.primaryLight,
+                        isDark
+                            ? AppColors.primaryOledDim
+                            : AppColors.primaryDark,
+                        activeIndex / (barCount - 1).clamp(1, 999),
+                      )!,
+                      progress: selectionT.clamp(0.35, 1.0),
+                      isDark: isDark,
+                    ),
+                  ),
+              ],
+            );
+          },
+        );
+      },
     );
+  }
+
+  double _barCenterX(int index, int barCount, double chartWidth) {
+    final segment = chartWidth / barCount;
+    return segment * index + segment / 2;
   }
 
   double _staggeredProgress(int index, int count) {
@@ -428,54 +518,47 @@ class _ValueTooltip extends StatelessWidget {
       child: Opacity(
         opacity: progress,
         child: Transform.scale(
-          scale: 0.9 + (0.1 * progress),
-          alignment: Alignment.bottomCenter,
-          child: Transform.translate(
-            offset: Offset(0, 6 * (1 - progress)),
-            child: OverflowBox(
-              maxWidth: 160,
-              minWidth: 0,
-              alignment: Alignment.bottomCenter,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: isDark ? colors.elevatedSurface : Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: barColor.withValues(alpha: isDark ? 0.5 : 0.3),
-                    width: 1.2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: barColor.withValues(alpha: 0.3 * progress),
-                      blurRadius: 14,
-                      offset: const Offset(0, 4),
-                    ),
-                    if (!isDark)
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                  ],
+          scale: 0.92 + (0.08 * progress),
+          alignment: Alignment.center,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: isDark ? colors.elevatedSurface : Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: barColor.withValues(alpha: isDark ? 0.55 : 0.35),
+                width: 1.4,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: barColor.withValues(alpha: 0.32 * progress),
+                  blurRadius: 14,
+                  offset: const Offset(0, 4),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
+                if (!isDark)
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
-                  child: Text(
-                    value,
-                    softWrap: false,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: isDark ? barColor : AppColors.primaryDark,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.2,
-                      height: 1.1,
-                    ),
-                  ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                value,
+                maxLines: 1,
+                softWrap: false,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: isDark ? barColor : AppColors.primaryDark,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.2,
+                  height: 1.1,
                 ),
+              ),
               ),
             ),
           ),
