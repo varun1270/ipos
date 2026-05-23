@@ -31,8 +31,19 @@ class DashboardHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildTopRow(context),
-        const SizedBox(height: 16),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildLogo(context, compact: true),
+            const Spacer(),
+            const NotificationBell(),
+            const SizedBox(width: 10),
+            const UserAvatar(initials: 'NB'),
+          ],
+        ),
+        const SizedBox(height: 12),
+        const ShopSelectorDropdown(),
+        const SizedBox(height: 12),
         const DateRangeFilterChip(),
       ],
     );
@@ -40,13 +51,14 @@ class DashboardHeader extends StatelessWidget {
 
   Widget _buildWideHeader(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _buildLogo(context),
         SizedBox(
           width: context.responsiveValue(
-            compact: 10,
-            medium: 14,
-            expanded: 16,
+            compact: 12,
+            medium: 16,
+            expanded: 18,
           ),
         ),
         SizedBox(
@@ -68,38 +80,25 @@ class DashboardHeader extends StatelessWidget {
         ),
         SizedBox(
           width: context.responsiveValue(
-            compact: 8,
-            medium: 10,
-            expanded: 12,
+            compact: 10,
+            medium: 12,
+            expanded: 14,
           ),
         ),
         const NotificationBell(),
-        const SizedBox(width: 6),
+        const SizedBox(width: 10),
         const UserAvatar(initials: 'NB'),
       ],
     );
   }
 
-  Widget _buildLogo(BuildContext context) {
+  Widget _buildLogo(BuildContext context, {bool compact = false}) {
     final scale = context.responsiveValue(
-      compact: 0.38,
+      compact: compact ? 0.44 : 0.38,
       medium: 0.42,
       expanded: 0.45,
     );
 
     return IposLogo3D(scale: scale);
-  }
-
-  Widget _buildTopRow(BuildContext context) {
-    return Row(
-      children: [
-        _buildLogo(context),
-        const SizedBox(width: 10),
-        const Expanded(child: ShopSelectorDropdown()),
-        const NotificationBell(),
-        const SizedBox(width: 6),
-        const UserAvatar(initials: 'NB'),
-      ],
-    );
   }
 }
