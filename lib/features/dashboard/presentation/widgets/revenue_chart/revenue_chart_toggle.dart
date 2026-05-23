@@ -17,6 +17,7 @@ class RevenueChartToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Hard3DSurface.light(
+      color: context.appColors.elevatedSurface,
       borderRadius: 14,
       depth: 3,
       padding: const EdgeInsets.all(4),
@@ -27,7 +28,7 @@ class RevenueChartToggle extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 2),
             child: Hard3DChip(
               label: period.label,
-              color: AppColors.primary,
+              color: context.adaptivePrimary,
               selected: selectedPeriod == period,
               onTap: () => onPeriodChanged(period),
             ),

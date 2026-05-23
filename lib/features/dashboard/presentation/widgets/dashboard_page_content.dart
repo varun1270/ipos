@@ -59,7 +59,7 @@ class DashboardPageContent extends StatelessWidget {
           ],
           SizedBox(height: gap),
           const LowStockAlertsSection(),
-          SizedBox(height: gap),
+          SizedBox(height: gap + 8),
         ],
       ),
     );

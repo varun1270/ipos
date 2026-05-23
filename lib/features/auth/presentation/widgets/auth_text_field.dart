@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+
 class AuthTextField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
@@ -22,6 +23,7 @@ class AuthTextField extends StatefulWidget {
   });
 
   static InputDecoration decoration({
+    required BuildContext context,
     required bool focused,
     String? hintText,
     Widget? prefixIcon,
@@ -29,8 +31,9 @@ class AuthTextField extends StatefulWidget {
     Widget? suffixIcon,
     EdgeInsetsGeometry? contentPadding,
   }) {
+    final colors = context.appColors;
     final borderSide = BorderSide(
-      color: focused ? AppColors.primary : AppColors.border,
+      color: focused ? AppColors.primary : colors.border,
       width: focused ? 1.5 : 1,
     );
 
@@ -41,13 +44,13 @@ class AuthTextField extends StatefulWidget {
 
     return InputDecoration(
       hintText: hintText,
-      hintStyle: const TextStyle(
-        color: AppColors.textTertiary,
+      hintStyle: TextStyle(
+        color: colors.textTertiary,
         fontSize: 16,
         fontWeight: FontWeight.w500,
       ),
       filled: true,
-      fillColor: focused ? AppColors.primaryVeryLight : AppColors.background,
+      fillColor: focused ? colors.primaryVeryLight : colors.background,
       contentPadding:
           contentPadding ??
           const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -92,13 +95,15 @@ class _AuthTextFieldState extends State<AuthTextField> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
           widget.label,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
+          style: TextStyle(
+            color: colors.textPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.1,
@@ -111,18 +116,19 @@ class _AuthTextFieldState extends State<AuthTextField> {
           obscureText: widget.obscureText && _obscured,
           keyboardType: widget.keyboardType,
           textInputAction: widget.textInputAction,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
+          style: TextStyle(
+            color: colors.textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
           decoration: AuthTextField.decoration(
+            context: context,
             focused: _focused,
             hintText: widget.hintText,
             prefixIcon: Icon(
               widget.icon,
               size: 20,
-              color: _focused ? AppColors.primary : AppColors.textTertiary,
+              color: _focused ? AppColors.primary : colors.textTertiary,
             ),
             suffixIcon: widget.obscureText
                 ? IconButton(
@@ -132,7 +138,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
                           ? Icons.visibility_off_outlined
                           : Icons.visibility_outlined,
                       size: 20,
-                      color: AppColors.textTertiary,
+                      color: colors.textTertiary,
                     ),
                   )
                 : null,

@@ -16,8 +16,34 @@ class TrendIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPositive = trendPercent >= 0;
-    final color = isPositive ? AppColors.success : AppColors.error;
+    final color =
+        isPositive ? context.adaptiveSuccess : context.adaptiveError;
     final icon = isPositive ? Icons.arrow_upward : Icons.arrow_downward;
+
+    if (!onDarkBackground && context.isDarkTheme) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(999),
+          color: color.withValues(alpha: 0.14),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: color),
+            const SizedBox(width: 2),
+            Text(
+              '${trendPercent.abs().toStringAsFixed(1)}%',
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     if (onDarkBackground) {
       return Container(
@@ -30,16 +56,12 @@ class TrendIndicator extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: color == AppColors.success
-                ? const Color(0xFF6EE7B7)
-                : const Color(0xFFFCA5A5)),
+            Icon(icon, size: 14, color: color),
             const SizedBox(width: 2),
             Text(
               '${trendPercent.abs().toStringAsFixed(1)}%',
               style: TextStyle(
-                color: color == AppColors.success
-                    ? const Color(0xFF6EE7B7)
-                    : const Color(0xFFFCA5A5),
+                color: color,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),

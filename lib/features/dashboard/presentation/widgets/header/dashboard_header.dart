@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/utils/responsive_utils.dart';
-import '../../../../../core/theme/app_colors.dart';
+import '../../../../../shared/widgets/ipos_logo_3d.dart';
 import '../../utils/dashboard_responsive.dart';
 import '../shared/dashboard_3d_styles.dart';
-import '../shared/hard_3d_surface.dart';
 import 'date_range_filter_chip.dart';
 import 'notification_bell.dart';
 import 'shop_selector_dropdown.dart';
@@ -42,35 +41,7 @@ class DashboardHeader extends StatelessWidget {
   Widget _buildWideHeader(BuildContext context) {
     return Row(
       children: [
-        Hard3DSurface(
-          color: AppColors.primary,
-          borderRadius: 14,
-          depth: 4,
-          padding: EdgeInsets.symmetric(
-            horizontal: context.responsiveValue(
-              compact: 12,
-              medium: 14,
-              expanded: 16,
-            ),
-            vertical: 10,
-          ),
-          child: Text(
-            'IPOS',
-            style: TextStyle(
-              color: AppColors.textOnPrimary,
-              fontSize: context.responsiveValue(
-                compact: 18,
-                medium: 19,
-                expanded: 20,
-              ),
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.8,
-              shadows: const [
-                Shadow(color: Colors.black26, offset: Offset(0, 1), blurRadius: 2),
-              ],
-            ),
-          ),
-        ),
+        _buildLogo(context),
         SizedBox(
           width: context.responsiveValue(
             compact: 10,
@@ -109,24 +80,20 @@ class DashboardHeader extends StatelessWidget {
     );
   }
 
+  Widget _buildLogo(BuildContext context) {
+    final scale = context.responsiveValue(
+      compact: 0.38,
+      medium: 0.42,
+      expanded: 0.45,
+    );
+
+    return IposLogo3D(scale: scale);
+  }
+
   Widget _buildTopRow(BuildContext context) {
     return Row(
       children: [
-        Hard3DSurface(
-          color: AppColors.primary,
-          borderRadius: 14,
-          depth: 4,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          child: const Text(
-            'IPOS',
-            style: TextStyle(
-              color: AppColors.textOnPrimary,
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.8,
-            ),
-          ),
-        ),
+        _buildLogo(context),
         const SizedBox(width: 10),
         const Expanded(child: ShopSelectorDropdown()),
         const NotificationBell(),

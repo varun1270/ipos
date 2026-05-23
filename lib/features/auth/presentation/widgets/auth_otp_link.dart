@@ -103,6 +103,7 @@ class _AuthOtpLinkState extends State<AuthOtpLink>
           builder: (context, child) {
             final pressScale = 1 - (0.03 * _press.value);
             final shimmerT = _shimmer.value;
+            final colors = context.appColors;
 
             return Transform.scale(
               scale: pressScale,
@@ -116,8 +117,8 @@ class _AuthOtpLinkState extends State<AuthOtpLink>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        AppColors.primaryVeryLight,
-                        AppColors.primaryVeryLight.withValues(alpha: 0.6),
+                        colors.primaryVeryLight,
+                        colors.primaryVeryLight.withValues(alpha: 0.6),
                       ],
                     ),
                     border: Border.all(

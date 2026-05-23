@@ -93,17 +93,16 @@ class _AuthBrandPanelState extends State<AuthBrandPanel>
           ),
         );
       },
-      child: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: context.responsiveValue(
-              compact: 32,
-              medium: 40,
-              expanded: 56,
-            ),
-            vertical: 32,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: context.responsiveValue(
+            compact: 32,
+            medium: 40,
+            expanded: 56,
           ),
-          child: Column(
+          vertical: 32,
+        ),
+        child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -152,7 +151,6 @@ class _AuthBrandPanelState extends State<AuthBrandPanel>
             ],
           ),
         ),
-      ),
     );
   }
 

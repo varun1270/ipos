@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/system_ui_overlay.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../shared/widgets/app_snackbar.dart';
 import '../animations/auth_animations.dart';
@@ -10,6 +12,7 @@ import '../widgets/auth_background.dart';
 import '../widgets/auth_brand_panel.dart';
 import '../widgets/auth_button.dart';
 import '../widgets/auth_divider.dart';
+import '../widgets/auth_form_card.dart';
 import '../widgets/auth_logo_section.dart';
 import '../widgets/auth_tab_switcher.dart';
 import '../widgets/auth_otp_link.dart';
@@ -64,7 +67,7 @@ class _AuthShellScreenState extends ConsumerState<AuthShellScreen> {
   Widget build(BuildContext context) {
     final isWide = context.isWideScreen;
 
-    return Scaffold(
+    return ThemedScreen(
       body: AuthBackground(
         wideLayout: isWide,
         child: isWide ? _buildWideLayout(context) : _buildPhoneLayout(context),
@@ -98,43 +101,29 @@ class _AuthShellScreenState extends ConsumerState<AuthShellScreen> {
                   medium: 32,
                   expanded: 48,
                 ),
-                vertical: 32,
+                vertical: 24,
               ),
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: formMaxWidth),
-                child: Material(
-                  color: Colors.white.withValues(alpha: 0.96),
-                  elevation: 16,
-                  shadowColor: Colors.black.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(24),
-                  child: Padding(
-                    padding: EdgeInsets.all(
-                      context.responsiveValue(
-                        compact: 24,
-                        medium: 28,
-                        expanded: 32,
-                      ),
-                    ),
-                    child: _AuthFormBody(
-                      tabIndex: _tabIndex,
-                      onTabChanged: _switchTab,
-                      showLogo: false,
-                      phoneController: _phoneController,
-                      passwordController: _passwordController,
-                      nameController: _nameController,
-                      emailController: _emailController,
-                      registerPhoneController: _registerPhoneController,
-                      registerPasswordController:
-                          _registerPasswordController,
-                      loginCountryCode: _loginCountryCode,
-                      registerCountryCode: _registerCountryCode,
-                      onLoginCountryCodeChanged: (v) =>
-                          setState(() => _loginCountryCode = v),
-                      onRegisterCountryCodeChanged: (v) =>
-                          setState(() => _registerCountryCode = v),
-                      loginPhoneNumber: _loginPhoneNumber,
-                      registerPhoneNumber: _registerPhoneNumber,
-                    ),
+                child: AuthFormCard(
+                  child: _AuthFormBody(
+                    tabIndex: _tabIndex,
+                    onTabChanged: _switchTab,
+                    showLogo: false,
+                    phoneController: _phoneController,
+                    passwordController: _passwordController,
+                    nameController: _nameController,
+                    emailController: _emailController,
+                    registerPhoneController: _registerPhoneController,
+                    registerPasswordController: _registerPasswordController,
+                    loginCountryCode: _loginCountryCode,
+                    registerCountryCode: _registerCountryCode,
+                    onLoginCountryCodeChanged: (v) =>
+                        setState(() => _loginCountryCode = v),
+                    onRegisterCountryCodeChanged: (v) =>
+                        setState(() => _registerCountryCode = v),
+                    loginPhoneNumber: _loginPhoneNumber,
+                    registerPhoneNumber: _registerPhoneNumber,
                   ),
                 ),
               ),
@@ -147,7 +136,7 @@ class _AuthShellScreenState extends ConsumerState<AuthShellScreen> {
 
   Widget _buildPhoneLayout(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
       child: _AuthFormBody(
         tabIndex: _tabIndex,
         onTabChanged: _switchTab,
@@ -223,7 +212,7 @@ class _AuthFormBody extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (showLogo) ...[
-          const SizedBox(height: 36),
+          const SizedBox(height: 8),
           AuthAnimations.fadeSlide(
             index: 0,
             child: const AuthLogoSection(
@@ -287,6 +276,7 @@ class _AuthFormBody extends StatelessWidget {
                   ),
           ),
         ),
+        const SizedBox(height: 8),
       ],
     );
   }
@@ -299,13 +289,15 @@ class _WideFormHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Welcome to IPOS',
           style: TextStyle(
-            color: const Color(0xFF111827),
+            color: colors.textPrimary,
             fontSize: 32 * scale,
             fontWeight: FontWeight.w800,
             height: 1.15,
@@ -315,7 +307,7 @@ class _WideFormHeader extends StatelessWidget {
         Text(
           'Sign in or create your store account to get started.',
           style: TextStyle(
-            color: const Color(0xFF6B7280),
+            color: colors.textSecondary,
             fontSize: 15 * scale,
             fontWeight: FontWeight.w500,
             height: 1.35,

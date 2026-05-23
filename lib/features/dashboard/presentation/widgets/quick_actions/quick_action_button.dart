@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/utils/responsive_utils.dart';
 import '../shared/hard_3d_surface.dart';
 
@@ -19,6 +20,83 @@ class QuickActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (context.isDarkTheme) {
+      return _buildPlain(context);
+    }
+    return _build3D(context);
+  }
+
+  Widget _buildPlain(BuildContext context) {
+    final colors = context.appColors;
+    final iconSize = context.responsiveValue(
+      compact: 42.0,
+      medium: 36.0,
+      expanded: 42.0,
+    );
+    final verticalPadding = context.responsiveValue(
+      compact: 12.0,
+      medium: 10.0,
+      expanded: 12.0,
+    );
+    final labelGap = context.responsiveValue(
+      compact: 8.0,
+      medium: 6.0,
+      expanded: 8.0,
+    );
+
+    return Material(
+      color: colors.elevatedSurface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(color: colors.border),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: verticalPadding,
+            horizontal: 8,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: iconSize,
+                height: iconSize,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(13),
+                  color: color.withValues(alpha: 0.14),
+                ),
+                child: Icon(icon, color: color, size: iconSize * 0.52),
+              ),
+              SizedBox(height: labelGap),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  style: TextStyle(
+                    color: colors.textPrimary,
+                    fontSize: context.responsiveValue(
+                      compact: 12,
+                      medium: 11,
+                      expanded: 12,
+                    ),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _build3D(BuildContext context) {
     final iconSize = context.responsiveValue(
       compact: 42.0,
       medium: 36.0,

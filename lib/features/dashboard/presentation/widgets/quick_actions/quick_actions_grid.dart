@@ -16,26 +16,26 @@ class QuickActionsGrid extends StatelessWidget {
       mainAxisSpacing: DashboardResponsive.columnGap(context),
       crossAxisSpacing: DashboardResponsive.columnGap(context),
       childAspectRatio: DashboardResponsive.quickActionAspectRatio(context),
-      children: const [
+      children: [
         QuickActionButton(
           icon: Icons.point_of_sale_outlined,
           label: 'New Sale',
-          color: AppColors.primary,
+          color: context.adaptivePrimary,
         ),
         QuickActionButton(
           icon: Icons.add_box_outlined,
           label: 'Add Product',
-          color: AppColors.success,
+          color: context.adaptiveSuccess,
         ),
         QuickActionButton(
           icon: Icons.receipt_long_outlined,
           label: 'View Orders',
-          color: AppColors.info,
+          color: context.adaptiveInfo,
         ),
         QuickActionButton(
           icon: Icons.inventory_2_outlined,
           label: 'Low Stock',
-          color: AppColors.warning,
+          color: context.adaptiveWarning,
         ),
       ],
     );

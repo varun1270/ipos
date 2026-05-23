@@ -32,13 +32,17 @@ class CountryCodePicker extends StatelessWidget {
       _options.firstWhere((o) => o.code == value, orElse: () => _options.first);
 
   Future<void> _openSheet(BuildContext context) async {
+    final colors = context.appColors;
+
     final picked = await showModalBottomSheet<String>(
       context: context,
-      backgroundColor: AppColors.background,
+      backgroundColor: colors.background,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) {
+      builder: (sheetContext) {
+        final sheetColors = sheetContext.appColors;
+
         return SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -48,18 +52,18 @@ class CountryCodePicker extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.border,
+                  color: sheetColors.border,
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.all(16),
+              Padding(
+                padding: const EdgeInsets.all(16),
                 child: Text(
                   'Select country code',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: sheetColors.textPrimary,
                   ),
                 ),
               ),
@@ -81,7 +85,7 @@ class CountryCodePicker extends StatelessWidget {
                     ),
                   ),
                   selected: option.code == value,
-                  onTap: () => Navigator.pop(context, option.code),
+                  onTap: () => Navigator.pop(sheetContext, option.code),
                 ),
               const SizedBox(height: 8),
             ],
@@ -95,6 +99,8 @@ class CountryCodePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     if (embedded) {
       return Material(
         color: Colors.transparent,
@@ -113,17 +119,17 @@ class CountryCodePicker extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   _selected.code,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
+                  style: TextStyle(
+                    color: colors.textPrimary,
                     fontWeight: FontWeight.w800,
                     fontSize: 15,
                   ),
                 ),
                 const SizedBox(width: 2),
-                const Icon(
+                Icon(
                   Icons.keyboard_arrow_down_rounded,
                   size: 18,
-                  color: AppColors.textSecondary,
+                  color: colors.textSecondary,
                 ),
               ],
             ),
@@ -136,8 +142,8 @@ class CountryCodePicker extends StatelessWidget {
       child: DropdownButton<String>(
         value: value,
         icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18),
-        style: const TextStyle(
-          color: AppColors.textPrimary,
+        style: TextStyle(
+          color: colors.textPrimary,
           fontWeight: FontWeight.w700,
         ),
         items: _options

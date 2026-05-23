@@ -14,7 +14,8 @@ class LowStockTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCritical = item.alertLevel == StockAlertLevel.critical;
-    final accentColor = isCritical ? AppColors.error : AppColors.warning;
+    final accentColor =
+        isCritical ? context.adaptiveError : context.adaptiveWarning;
 
     return Hard3DSurface(
       color: accentColor,

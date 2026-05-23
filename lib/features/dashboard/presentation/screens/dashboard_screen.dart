@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/system_ui_overlay.dart';
 import '../providers/dashboard_providers.dart';
 import '../utils/dashboard_load_utils.dart';
 import '../widgets/dashboard_page_content.dart';
@@ -15,38 +16,63 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  var _initialLoadScheduled = false;
+
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => loadDashboard(ref));
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialLoadScheduled) return;
+    _initialLoadScheduled = true;
+    _scheduleInitialLoad();
+  }
+
+  void _scheduleInitialLoad() {
+    final animation = ModalRoute.of(context)?.animation;
+    if (animation == null || animation.isCompleted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) loadDashboard(ref);
+      });
+      return;
+    }
+
+    void onStatus(AnimationStatus status) {
+      if (status != AnimationStatus.completed) return;
+      animation.removeStatusListener(onStatus);
+      if (mounted) loadDashboard(ref);
+    }
+
+    animation.addStatusListener(onStatus);
   }
 
   @override
   Widget build(BuildContext context) {
     final dashboard = ref.watch(dashboardControllerProvider);
+    final showInitialLoading = dashboard.isLoading && dashboard.stats == null;
 
-    return Scaffold(
-      backgroundColor: AppColors.surface,
+    return ThemedScreen(
       body: DashboardBackground(
-        child: SafeArea(
-          child: dashboard.isLoading && dashboard.stats == null
-              ? const Center(child: CircularProgressIndicator())
-              : RefreshIndicator(
-                  color: AppColors.primary,
-                  onRefresh: () => loadDashboard(ref),
-                  child: CustomScrollView(
-                    physics: const BouncingScrollPhysics(
-                      parent: AlwaysScrollableScrollPhysics(),
-                    ),
-                    slivers: [
-                      SliverToBoxAdapter(
-                        child: DashboardPageContent(
-                          errorMessage: dashboard.errorMessage,
-                        ),
-                      ),
-                    ],
+        child: RefreshIndicator(
+          color: context.adaptivePrimary,
+          onRefresh: () => loadDashboard(ref),
+          child: CustomScrollView(
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            slivers: [
+              if (showInitialLoading)
+                const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else
+                SliverToBoxAdapter(
+                  child: DashboardPageContent(
+                    errorMessage: dashboard.errorMessage,
                   ),
                 ),
+              const SliverToBoxAdapter(child: SizedBox(height: 8)),
+            ],
+          ),
         ),
       ),
     );

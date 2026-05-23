@@ -10,6 +10,8 @@ class OtpInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return TextField(
       controller: controller,
       autofocus: true,
@@ -17,8 +19,8 @@ class OtpInputField extends StatelessWidget {
       keyboardType: TextInputType.number,
       textAlign: TextAlign.center,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-      style: const TextStyle(
-        color: AppColors.textPrimary,
+      style: TextStyle(
+        color: colors.textPrimary,
         fontSize: 28,
         fontWeight: FontWeight.w800,
         letterSpacing: 10,
@@ -27,10 +29,10 @@ class OtpInputField extends StatelessWidget {
         counterText: '',
         hintText: '000000',
         filled: true,
-        fillColor: AppColors.background,
+        fillColor: colors.background,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: colors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18),

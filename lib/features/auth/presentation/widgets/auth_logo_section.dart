@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/responsive_utils.dart';
+import '../../../../shared/widgets/ipos_logo_3d.dart';
 
 class AuthLogoSection extends StatefulWidget {
   final String title;
@@ -25,12 +26,9 @@ class _AuthLogoSectionState extends State<AuthLogoSection>
   static const Duration _textSwitchDuration = Duration(milliseconds: 320);
 
   late final AnimationController _entranceController;
-  late final AnimationController _floatController;
   late final Animation<double> _logoFade;
   late final Animation<double> _logoScale;
   late final Animation<double> _logoLift;
-  late final Animation<double> _shadowStrength;
-  late final Animation<double> _float;
 
   @override
   void initState() {
@@ -39,11 +37,6 @@ class _AuthLogoSectionState extends State<AuthLogoSection>
       vsync: this,
       duration: _entranceDuration,
     );
-    _floatController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2800),
-    );
-
     final logoCurve = CurvedAnimation(
       parent: _entranceController,
       curve: const Interval(0.0, 0.55, curve: Curves.easeOutBack),
@@ -52,25 +45,13 @@ class _AuthLogoSectionState extends State<AuthLogoSection>
     _logoFade = Tween<double>(begin: 0, end: 1).animate(logoCurve);
     _logoScale = Tween<double>(begin: 0.72, end: 1).animate(logoCurve);
     _logoLift = Tween<double>(begin: 14, end: 0).animate(logoCurve);
-    _shadowStrength = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _entranceController,
-        curve: const Interval(0.2, 0.7, curve: Curves.easeOut),
-      ),
-    );
-    _float = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _floatController, curve: Curves.easeInOut),
-    );
 
-    _entranceController.forward().then((_) {
-      if (mounted) _floatController.repeat(reverse: true);
-    });
+    _entranceController.forward();
   }
 
   @override
   void dispose() {
     _entranceController.dispose();
-    _floatController.dispose();
     super.dispose();
   }
 
@@ -96,10 +77,9 @@ class _AuthLogoSectionState extends State<AuthLogoSection>
               ),
             );
           },
-          child: _Logo3D(
-            shadowStrength: _shadowStrength,
-            float: _float,
+          child: IposLogo3D(
             scale: scale,
+            animated: true,
           ),
         ),
         SizedBox(height: 24 * scale),
@@ -130,159 +110,6 @@ class _AuthLogoSectionState extends State<AuthLogoSection>
           ),
         ),
       ],
-    );
-  }
-}
-
-class _Logo3D extends StatelessWidget {
-  static const double _baseWidth = 128;
-  static const double _baseHeight = 76;
-  static const double _depth = 5;
-  static const double _radius = 22;
-  static const String _logoAsset = 'assets/logos/app_logo.png';
-
-  final Animation<double> shadowStrength;
-  final Animation<double> float;
-  final double scale;
-
-  const _Logo3D({
-    required this.shadowStrength,
-    required this.float,
-    this.scale = 1,
-  });
-
-  double get _width => _baseWidth * scale;
-  double get _height => _baseHeight * scale;
-
-  Color _darken(Color color, double amount) {
-    final hsl = HSLColor.fromColor(color);
-    return hsl
-        .withLightness((hsl.lightness - amount).clamp(0.0, 1.0))
-        .toColor();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    const color = AppColors.primary;
-    final baseColor = _darken(color, 0.22);
-
-    return AnimatedBuilder(
-      animation: Listenable.merge([shadowStrength, float]),
-      builder: (context, child) {
-        final shadowT = shadowStrength.value;
-        final bob = (float.value - 0.5) * 2;
-        final floatY = -3.5 * bob;
-        final floatTilt = 0.018 * bob;
-
-        return SizedBox(
-          width: _width,
-          height: _height + _depth,
-          child: Transform.translate(
-            offset: Offset(0, floatY),
-            child: Transform.rotate(
-              angle: floatTilt,
-              child: Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.topCenter,
-                children: [
-                  Positioned(
-                    top: _depth,
-                    child: Container(
-                      width: _width,
-                      height: _height,
-                      decoration: BoxDecoration(
-                        color: baseColor,
-                        borderRadius: BorderRadius.circular(_radius),
-                        boxShadow: [
-                          BoxShadow(
-                            color: color.withValues(alpha: 0.22 * shadowT),
-                            blurRadius: 22 * shadowT,
-                            offset: Offset(0, 12 * shadowT),
-                            spreadRadius: -6,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 0,
-                    child: Container(
-                      width: _width,
-                      height: _height,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(_radius),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(
-                              alpha: 0.16 * shadowT,
-                            ),
-                            blurRadius: 14 * shadowT,
-                            offset: Offset(0, 8 * shadowT),
-                            spreadRadius: -3,
-                          ),
-                          BoxShadow(
-                            color: color.withValues(alpha: 0.28 * shadowT),
-                            blurRadius: 16 * shadowT,
-                            offset: Offset(0, 4 * shadowT),
-                            spreadRadius: -4,
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(_radius),
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            Positioned(
-                              top: 0,
-                              left: 0,
-                              right: 0,
-                              height: _height * 0.4,
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Colors.white.withValues(alpha: 0.18),
-                                      Colors.white.withValues(alpha: 0),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Center(child: child),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-      child: Image.asset(
-        _logoAsset,
-        width: _width,
-        height: _height,
-        fit: BoxFit.cover,
-        filterQuality: FilterQuality.high,
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            width: _width,
-            height: _height,
-            color: AppColors.primary,
-            alignment: Alignment.center,
-            child: const Icon(
-              Icons.storefront_rounded,
-              color: AppColors.textOnPrimary,
-              size: 36,
-            ),
-          );
-        },
-      ),
     );
   }
 }
@@ -323,7 +150,7 @@ class _AnimatedTextBlock extends StatelessWidget {
             title,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: AppColors.textPrimary,
+              color: context.appColors.textPrimary,
               fontSize: titleSize,
               fontWeight: FontWeight.w800,
               height: 1.15,
@@ -337,7 +164,7 @@ class _AnimatedTextBlock extends StatelessWidget {
             subtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: AppColors.textSecondary,
+              color: context.appColors.textSecondary,
               fontSize: subtitleSize,
               fontWeight: FontWeight.w500,
               height: 1.35,

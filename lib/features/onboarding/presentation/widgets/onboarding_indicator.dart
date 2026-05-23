@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+import '../../../../core/theme/app_colors.dart';
+
 class OnboardingIndicator extends StatelessWidget {
 
   final PageController controller;
@@ -25,8 +27,7 @@ class OnboardingIndicator extends StatelessWidget {
 
       effect: ExpandingDotsEffect(
         activeDotColor: activeColor,
-
-        dotColor: Colors.grey.shade300,
+        dotColor: context.appColors.border,
 
         dotHeight: 8,
         dotWidth: 8,

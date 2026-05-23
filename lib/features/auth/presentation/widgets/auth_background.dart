@@ -14,25 +14,27 @@ class AuthBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: wideLayout
-              ? const [
-                  AppColors.background,
-                  AppColors.surface,
-                  AppColors.surface,
+              ? [
+                  colors.background,
+                  colors.surface,
+                  colors.surface,
                 ]
-              : const [
-                  AppColors.primaryUltraLight,
-                  AppColors.background,
-                  AppColors.surface,
+              : [
+                  colors.primaryUltraLight,
+                  colors.background,
+                  colors.surface,
                 ],
         ),
       ),
-      child: wideLayout ? child : SafeArea(child: child),
+      child: child,
     );
   }
 }

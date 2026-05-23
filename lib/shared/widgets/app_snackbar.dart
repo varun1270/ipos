@@ -270,32 +270,34 @@ class _SnackbarPalette {
     required this.soft,
   });
 
-  factory _SnackbarPalette.of(AppSnackbarType type) {
+  factory _SnackbarPalette.of(BuildContext context, AppSnackbarType type) {
+    final colors = context.appColors;
+
     switch (type) {
       case AppSnackbarType.success:
-        return const _SnackbarPalette(
+        return _SnackbarPalette(
           accent: AppColors.success,
-          accentDark: Color(0xFF047857),
-          soft: AppColors.successSoft,
+          accentDark: const Color(0xFF047857),
+          soft: colors.successSoft,
         );
       case AppSnackbarType.error:
-        return const _SnackbarPalette(
+        return _SnackbarPalette(
           accent: AppColors.error,
-          accentDark: Color(0xFFB91C1C),
-          soft: Color(0xFFFEE2E2),
+          accentDark: const Color(0xFFB91C1C),
+          soft: colors.surfaceVariant,
         );
       case AppSnackbarType.warning:
-        return const _SnackbarPalette(
+        return _SnackbarPalette(
           accent: AppColors.warning,
-          accentDark: Color(0xFFB45309),
-          soft: Color(0xFFFEF3C7),
+          accentDark: const Color(0xFFB45309),
+          soft: colors.surfaceVariant,
         );
       case AppSnackbarType.info:
       case AppSnackbarType.auto:
-        return const _SnackbarPalette(
+        return _SnackbarPalette(
           accent: AppColors.primary,
           accentDark: AppColors.primaryDark,
-          soft: AppColors.primaryVeryLight,
+          soft: colors.primaryVeryLight,
         );
     }
   }
@@ -626,7 +628,7 @@ class _AppSnackbarWidgetState extends State<_AppSnackbarWidget>
   }
 
   Widget _buildCard(BuildContext context) {
-    final palette = _SnackbarPalette.of(widget.type);
+    final palette = _SnackbarPalette.of(context, widget.type);
 
     final card = Material(
       color: Colors.transparent,
@@ -818,6 +820,8 @@ class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasTitle = title != null && title!.trim().isNotEmpty;
+    final textColor = context.appColors.textPrimary;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -840,10 +844,10 @@ class _Body extends StatelessWidget {
           message,
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13.5,
             fontWeight: FontWeight.w500,
-            color: AppColors.textPrimary,
+            color: textColor,
             height: 1.3,
           ),
         ),

@@ -41,6 +41,7 @@ class Hard3DSurface extends StatefulWidget {
   factory Hard3DSurface.light({
     Key? key,
     required Widget child,
+    Color? color,
     EdgeInsetsGeometry padding = const EdgeInsets.all(16),
     double borderRadius = 20,
     double depth = 4,
@@ -49,7 +50,7 @@ class Hard3DSurface extends StatefulWidget {
   }) {
     return Hard3DSurface(
       key: key,
-      color: Colors.white,
+      color: color ?? Colors.white,
       borderRadius: borderRadius,
       depth: depth,
       padding: padding,
@@ -108,18 +109,39 @@ class _Hard3DSurfaceState extends State<Hard3DSurface>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.isDarkTheme;
     final faceColor =
         widget.enabled ? widget.color : widget.color.withValues(alpha: 0.55);
-    final baseColor = Hard3DColors.darken(faceColor, 0.22);
-    final faceTop = Hard3DColors.lighten(faceColor, 0.08);
-    final faceBottom = Hard3DColors.darken(faceColor, 0.06);
     final sizedChild = Padding(padding: widget.padding, child: widget.child);
 
     final body = AnimatedBuilder(
       animation: _press,
       builder: (context, child) {
         final t = _press.value;
-        final faceOffset = widget.depth * t;
+        final faceOffset = isDark ? 1.0 * t : widget.depth * t;
+
+        if (isDark) {
+          final colors = context.appColors;
+
+          return Transform.translate(
+            offset: Offset(0, faceOffset),
+            child: Container(
+              decoration: BoxDecoration(
+                color: faceColor,
+                borderRadius: BorderRadius.circular(widget.borderRadius),
+                border: Border.all(color: colors.border),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(widget.borderRadius),
+                child: child,
+              ),
+            ),
+          );
+        }
+
+        final baseColor = Hard3DColors.darken(faceColor, 0.22);
+        final faceTop = Hard3DColors.lighten(faceColor, 0.08);
+        final faceBottom = Hard3DColors.darken(faceColor, 0.06);
         final shadowBlur = 18 - (10 * t);
         final shadowSpread = -6 + (4 * t);
         final shadowYOffset = 10 - (6 * t);
@@ -187,15 +209,17 @@ class _Hard3DSurfaceState extends State<Hard3DSurface>
                       left: 0,
                       right: 0,
                       height: 48,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Color(0x3DFFFFFF),
-                              Color(0x00FFFFFF),
-                            ],
+                      child: ExcludeSemantics(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Color(0x3DFFFFFF),
+                                Color(0x00FFFFFF),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -212,7 +236,7 @@ class _Hard3DSurfaceState extends State<Hard3DSurface>
     );
 
     return Padding(
-      padding: EdgeInsets.only(bottom: widget.depth),
+      padding: EdgeInsets.only(bottom: isDark ? 0 : widget.depth),
       child: _interactive
           ? GestureDetector(
               onTapDown: _onTapDown,
@@ -252,8 +276,8 @@ class Hard3DChip extends StatelessWidget {
             child: Center(
               child: Text(
                 label,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
+                style: TextStyle(
+                  color: context.appColors.textSecondary,
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
                 ),

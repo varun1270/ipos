@@ -9,20 +9,22 @@ class AuthDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Row(
       children: [
-        const Expanded(child: Divider(color: AppColors.divider)),
+        Expanded(child: Divider(color: colors.divider)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14),
           child: Text(
             text,
-            style: const TextStyle(
-              color: AppColors.textTertiary,
+            style: TextStyle(
+              color: colors.textTertiary,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
-        const Expanded(child: Divider(color: AppColors.divider)),
+        Expanded(child: Divider(color: colors.divider)),
       ],
     );
   }

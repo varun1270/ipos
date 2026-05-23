@@ -21,6 +21,8 @@ class AuthTabSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final trackWidth = constraints.maxWidth;
@@ -31,7 +33,7 @@ class AuthTabSwitcher extends StatelessWidget {
           width: trackWidth,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
+              color: colors.surfaceVariant,
               borderRadius: BorderRadius.circular(_radius + 4),
               boxShadow: [
                 BoxShadow(
@@ -212,6 +214,8 @@ class _TabItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Expanded(
       child: Material(
         color: Colors.transparent,
@@ -233,7 +237,7 @@ class _TabItem extends StatelessWidget {
                     letterSpacing: isSelected ? 0.25 : 0,
                     color: isSelected
                         ? AppColors.textOnPrimary
-                        : AppColors.textSecondary,
+                        : colors.textSecondary,
                     shadows: isSelected
                         ? [
                             Shadow(

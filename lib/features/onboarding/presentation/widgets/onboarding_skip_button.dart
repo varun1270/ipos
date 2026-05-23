@@ -11,7 +11,9 @@ class OnboardingSkipButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onPressed,
-      style: TextButton.styleFrom(foregroundColor: AppColors.textSecondary),
+      style: TextButton.styleFrom(
+        foregroundColor: context.appColors.textSecondary,
+      ),
       child: Text(label),
     );
   }

@@ -27,15 +27,17 @@ class DashboardAnimations {
     required Widget child,
     int direction = 1,
   }) {
+    final fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+    );
+
     final slideAnimation = Tween<Offset>(
-      begin: Offset(direction.toDouble(), 0),
+      begin: Offset(direction * 0.08, 0),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
 
-    final fadeAnimation = Tween<double>(begin: 0.85, end: 1).animate(
-      CurvedAnimation(parent: animation, curve: Curves.easeOut),
-    );
-
+    // Fade first so semantics/layout are not driven by a full-screen slide
+    // transform while the dashboard builds its scrollable subtree.
     return FadeTransition(
       opacity: fadeAnimation,
       child: SlideTransition(position: slideAnimation, child: child),

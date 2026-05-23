@@ -13,13 +13,15 @@ class ShopSelectorDropdown extends ConsumerWidget {
     final controller = ref.watch(shopSelectorControllerProvider);
     final shops = controller.shops;
 
+    final colors = context.appColors;
+
     return DropdownButtonHideUnderline(
       child: DropdownButton<String>(
         value: controller.selectedShopId,
         isExpanded: true,
         icon: const Icon(Icons.keyboard_arrow_down, size: 20),
-        style: const TextStyle(
-          color: AppColors.textPrimary,
+        style: TextStyle(
+          color: colors.textPrimary,
           fontSize: 15,
           fontWeight: FontWeight.w600,
         ),

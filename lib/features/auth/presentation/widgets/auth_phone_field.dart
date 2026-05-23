@@ -46,13 +46,15 @@ class _AuthPhoneFieldState extends State<AuthPhoneField> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
+        Text(
           'Phone number',
           style: TextStyle(
-            color: AppColors.textPrimary,
+            color: colors.textPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.1,
@@ -61,6 +63,7 @@ class _AuthPhoneFieldState extends State<AuthPhoneField> {
         const SizedBox(height: 8),
         InputDecorator(
           decoration: AuthTextField.decoration(
+            context: context,
             focused: _focused,
             contentPadding: EdgeInsets.zero,
           ),
@@ -77,7 +80,7 @@ class _AuthPhoneFieldState extends State<AuthPhoneField> {
                 Container(
                   width: 1,
                   margin: const EdgeInsets.symmetric(vertical: 12),
-                  color: AppColors.textTertiary.withValues(alpha: 0.35),
+                  color: colors.textTertiary.withValues(alpha: 0.35),
                 ),
                 Expanded(
                   child: TextField(
@@ -89,16 +92,16 @@ class _AuthPhoneFieldState extends State<AuthPhoneField> {
                       FilteringTextInputFormatter.digitsOnly,
                       LengthLimitingTextInputFormatter(10),
                     ],
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
+                    style: TextStyle(
+                      color: colors.textPrimary,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,
                     ),
                     decoration: InputDecoration(
                       hintText: widget.hintText ?? '98765 43210',
-                      hintStyle: const TextStyle(
-                        color: AppColors.textTertiary,
+                      hintStyle: TextStyle(
+                        color: colors.textTertiary,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         letterSpacing: 0.3,

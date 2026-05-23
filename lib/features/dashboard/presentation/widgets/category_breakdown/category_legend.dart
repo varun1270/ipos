@@ -11,6 +11,8 @@ class CategoryLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Column(
       children: categories.map((category) {
         return Padding(
@@ -29,8 +31,8 @@ class CategoryLegend extends StatelessWidget {
               Expanded(
                 child: Text(
                   category.categoryName,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
+                  style: TextStyle(
+                    color: colors.textPrimary,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
@@ -38,8 +40,8 @@ class CategoryLegend extends StatelessWidget {
               ),
               Text(
                 '${category.percentage.toStringAsFixed(0)}%',
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
+                style: TextStyle(
+                  color: colors.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),

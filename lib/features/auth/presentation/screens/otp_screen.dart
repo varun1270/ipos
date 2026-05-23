@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/system_ui_overlay.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../shared/widgets/app_snackbar.dart';
 import '../animations/auth_animations.dart';
@@ -9,6 +11,7 @@ import '../providers/auth_provider.dart';
 import '../widgets/auth_background.dart';
 import '../widgets/auth_brand_panel.dart';
 import '../widgets/auth_button.dart';
+import '../widgets/auth_form_card.dart';
 import '../widgets/auth_logo_section.dart';
 import '../widgets/otp_input_field.dart';
 
@@ -34,7 +37,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   Widget build(BuildContext context) {
     final isWide = context.isWideScreen;
 
-    return Scaffold(
+    return ThemedScreen(
       body: AuthBackground(
         wideLayout: isWide,
         child: isWide ? _buildWideLayout(context) : _buildPhoneLayout(context),
@@ -68,28 +71,15 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                   medium: 32,
                   expanded: 48,
                 ),
-                vertical: 32,
+                vertical: 24,
               ),
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: formMaxWidth),
-                child: Material(
-                  color: Colors.white.withValues(alpha: 0.96),
-                  elevation: 16,
-                  shadowColor: Colors.black.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(24),
-                  child: Padding(
-                    padding: EdgeInsets.all(
-                      context.responsiveValue(
-                        compact: 24,
-                        medium: 28,
-                        expanded: 32,
-                      ),
-                    ),
-                    child: _OtpFormBody(
-                      phoneNumber: widget.phoneNumber,
-                      otpController: _otpController,
-                      showLogo: false,
-                    ),
+                child: AuthFormCard(
+                  child: _OtpFormBody(
+                    phoneNumber: widget.phoneNumber,
+                    otpController: _otpController,
+                    showLogo: false,
                   ),
                 ),
               ),
@@ -102,7 +92,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
   Widget _buildPhoneLayout(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
       child: _OtpFormBody(
         phoneNumber: widget.phoneNumber,
         otpController: _otpController,
@@ -132,7 +122,7 @@ class _OtpFormBody extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (showLogo) ...[
-          const SizedBox(height: 36),
+          const SizedBox(height: 8),
           AuthAnimations.fadeSlide(
             index: 0,
             child: AuthLogoSection(
@@ -196,6 +186,7 @@ class _OtpFormBody extends ConsumerWidget {
             child: const Text('Resend OTP'),
           ),
         ),
+        const SizedBox(height: 8),
       ],
     );
   }
@@ -209,13 +200,15 @@ class _WideOtpHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Verify OTP',
           style: TextStyle(
-            color: const Color(0xFF111827),
+            color: colors.textPrimary,
             fontSize: 32 * scale,
             fontWeight: FontWeight.w800,
             height: 1.15,
@@ -225,7 +218,7 @@ class _WideOtpHeader extends StatelessWidget {
         Text(
           'Enter the 6-digit code sent to $phoneNumber.',
           style: TextStyle(
-            color: const Color(0xFF6B7280),
+            color: colors.textSecondary,
             fontSize: 15 * scale,
             fontWeight: FontWeight.w500,
             height: 1.35,

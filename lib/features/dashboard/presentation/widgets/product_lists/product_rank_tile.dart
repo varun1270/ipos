@@ -17,11 +17,14 @@ class ProductRankTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = highlightRank ? AppColors.primary : AppColors.info;
+    final accent =
+        highlightRank ? context.adaptivePrimary : context.adaptiveInfo;
+    final colors = context.appColors;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Hard3DSurface.light(
+        color: colors.elevatedSurface,
         borderRadius: 18,
         depth: 3,
         padding: const EdgeInsets.all(14),
@@ -55,8 +58,8 @@ class ProductRankTile extends StatelessWidget {
                     product.productName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
+                    style: TextStyle(
+                      color: colors.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
@@ -64,8 +67,8 @@ class ProductRankTile extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     '${product.category} · ${product.unitsSold} sold',
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
+                    style: TextStyle(
+                      color: colors.textSecondary,
                       fontSize: 12,
                     ),
                   ),
@@ -75,8 +78,8 @@ class ProductRankTile extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               formatDashboardCurrency(product.revenue),
-              style: const TextStyle(
-                color: AppColors.textPrimary,
+              style: TextStyle(
+                color: colors.textPrimary,
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
               ),

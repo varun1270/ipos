@@ -26,7 +26,7 @@ class CategoryBreakdownSection extends ConsumerWidget {
         compact || context.screenSize == AppScreenSize.compact;
 
     final panel = Dashboard3DSurface.panel(
-      accent: AppColors.accentPurple,
+      accent: context.adaptiveAccentPurple,
       child: categories.isEmpty
           ? SizedBox(
               height: context.responsiveValue(
@@ -71,7 +71,7 @@ class CategoryBreakdownSection extends ConsumerWidget {
             child: Text(
               'Category Breakdown',
               style: TextStyle(
-                color: AppColors.textPrimary,
+                color: context.appColors.textPrimary,
                 fontSize: context.responsiveValue(
                   compact: 18,
                   medium: 19,

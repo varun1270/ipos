@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../domain/models/onboarding_model.dart';
 import '../animations/onboarding_animations.dart';
 import 'feature_tile.dart';
@@ -51,6 +52,9 @@ class _DesktopPageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final accent = data.accentColor(context);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxH = constraints.maxHeight;
@@ -79,17 +83,17 @@ class _DesktopPageContent extends StatelessWidget {
                       children: [
                         _PageBadge(
                           label: '$pageNumber of $pageCount',
-                          color: data.iconInnerCircleColor,
+                          color: accent,
                         ).fadeSlide(),
                         const SizedBox(height: 14),
                         Text(
                           data.title,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
                             height: 1.15,
-                            color: Color(0xFF111827),
+                            color: colors.textPrimary,
                             letterSpacing: -0.3,
                           ),
                         ).fadeSlide(),
@@ -97,21 +101,21 @@ class _DesktopPageContent extends StatelessWidget {
                         Text(
                           data.description,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14.5,
                             fontWeight: FontWeight.w500,
                             height: 1.45,
-                            color: Color(0xFF6B7280),
+                            color: colors.textSecondary,
                           ),
                         ).fadeSlide(),
                         const SizedBox(height: 18),
                         OnboardingFeatureGrid(
                           features: data.features,
-                          accentColor: data.iconInnerCircleColor,
-                          textStyle: const TextStyle(
+                          accentColor: accent,
+                          textStyle: TextStyle(
                             fontSize: 13.5,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF374151),
+                            color: colors.textPrimary,
                             height: 1.35,
                           ),
                           twoColumns: copyWidth >= 460,
@@ -140,40 +144,32 @@ class _MobilePageContent extends StatelessWidget {
     required this.pageCount,
   });
 
-  static const _titleTextStyle = TextStyle(
-    fontSize: 24,
-    fontWeight: FontWeight.w800,
-    height: 1.1,
-    color: Color(0xFF111827),
-  );
-  static const _descriptionTextStyle = TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w500,
-    height: 1.5,
-    color: Color(0xFF6B7280),
-  );
-  static const _featureTextStyle = TextStyle(
-    fontSize: 15,
-    fontWeight: FontWeight.w700,
-    color: Color(0xFF374151),
-  );
-
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final accent = data.accentColor(context);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isCompact = constraints.maxHeight < 560;
         final isVeryCompact = constraints.maxHeight < 500;
         final iconSize = isVeryCompact ? 142.0 : (isCompact ? 166.0 : 220.0);
-        final titleStyle = _titleTextStyle.copyWith(
+        final titleStyle = TextStyle(
           fontSize: isVeryCompact ? 21 : (isCompact ? 22 : 24),
+          fontWeight: FontWeight.w800,
+          height: 1.1,
+          color: colors.textPrimary,
         );
-        final descriptionStyle = _descriptionTextStyle.copyWith(
+        final descriptionStyle = TextStyle(
           fontSize: isVeryCompact ? 13.5 : (isCompact ? 14 : 16),
+          fontWeight: FontWeight.w500,
           height: isCompact ? 1.35 : 1.5,
+          color: colors.textSecondary,
         );
-        final featureStyle = _featureTextStyle.copyWith(
+        final featureStyle = TextStyle(
           fontSize: isVeryCompact ? 13.5 : (isCompact ? 14 : 15),
+          fontWeight: FontWeight.w700,
+          color: colors.textPrimary,
         );
 
         return Padding(
@@ -187,8 +183,8 @@ class _MobilePageContent extends StatelessWidget {
               OnboardingIcon(
                 icon: data.icon,
                 iconColor: data.iconColor,
-                innerColor: data.iconInnerCircleColor,
-                outerColor: data.iconOuterCircleColor,
+                innerColor: accent,
+                outerColor: data.outerCircleColor(context),
                 size: iconSize,
               ),
               SizedBox(height: isCompact ? 4 : 10),
@@ -197,7 +193,7 @@ class _MobilePageContent extends StatelessWidget {
                 style: TextStyle(
                   fontSize: isCompact ? 12 : 13,
                   fontWeight: FontWeight.w700,
-                  color: data.iconInnerCircleColor,
+                  color: accent,
                 ),
               ).fadeSlide(),
               SizedBox(height: isCompact ? 10 : 18),
@@ -216,7 +212,7 @@ class _MobilePageContent extends StatelessWidget {
               ...data.features.asMap().entries.map((entry) {
                 return FeatureTile(
                   text: entry.value,
-                  color: data.iconInnerCircleColor,
+                  color: accent,
                   textStyle: featureStyle,
                   bottomPadding: isCompact ? 7 : 10,
                 ).fadeSlideStaggered(entry.key);
@@ -264,6 +260,8 @@ class _IconStage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = data.accentColor(context);
+
     return Padding(
       padding: const EdgeInsets.only(top: 48),
       child: SizedBox(
@@ -272,8 +270,8 @@ class _IconStage extends StatelessWidget {
         child: OnboardingIcon(
           icon: data.icon,
           iconColor: data.iconColor,
-          innerColor: data.iconInnerCircleColor,
-          outerColor: data.iconOuterCircleColor,
+          innerColor: accent,
+          outerColor: data.outerCircleColor(context),
           size: size,
         ),
       ),

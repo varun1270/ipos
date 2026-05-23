@@ -17,6 +17,8 @@ class DashboardSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     return Padding(
       padding: EdgeInsets.only(
         bottom: context.responsiveValue(compact: 12, medium: 14, expanded: 16),
@@ -27,20 +29,22 @@ class DashboardSectionHeader extends StatelessWidget {
             child: Text(
               title,
               style: TextStyle(
-                color: AppColors.textPrimary,
+                color: colors.textPrimary,
                 fontSize: context.responsiveValue(
                   compact: 18,
                   medium: 19,
                   expanded: 20,
                 ),
                 fontWeight: FontWeight.w800,
-                shadows: const [
-                  Shadow(
-                    color: Color(0x1A4F46E5),
-                    blurRadius: 10,
-                    offset: Offset(0, 3),
-                  ),
-                ],
+                shadows: context.isDarkTheme
+                    ? null
+                    : const [
+                        Shadow(
+                          color: Color(0x1A4F46E5),
+                          blurRadius: 10,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
               ),
             ),
           ),

@@ -12,7 +12,7 @@ class NotificationBell extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Hard3DSurface(
-          color: AppColors.info,
+          color: context.adaptiveInfo,
           borderRadius: 14,
           depth: 3,
           padding: const EdgeInsets.all(10),

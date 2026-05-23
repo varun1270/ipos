@@ -8,6 +8,9 @@ class OnboardingModel {
   final Color iconInnerCircleColor;
   final Color iconOuterCircleColor;
   final Color screenBackgroundColor;
+  final Color iconInnerCircleColorDark;
+  final Color iconOuterCircleColorDark;
+  final Color screenBackgroundColorDark;
   final List<String> features;
 
   const OnboardingModel({
@@ -18,6 +21,27 @@ class OnboardingModel {
     required this.iconInnerCircleColor,
     required this.iconOuterCircleColor,
     required this.screenBackgroundColor,
+    required this.iconInnerCircleColorDark,
+    required this.iconOuterCircleColorDark,
+    required this.screenBackgroundColorDark,
     required this.features,
   });
+
+  Color backgroundColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? screenBackgroundColorDark
+        : screenBackgroundColor;
+  }
+
+  Color accentColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? iconInnerCircleColorDark
+        : iconInnerCircleColor;
+  }
+
+  Color outerCircleColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? iconOuterCircleColorDark
+        : iconOuterCircleColor;
+  }
 }

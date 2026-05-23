@@ -26,7 +26,7 @@ class RevenueChartSection extends ConsumerWidget {
     );
 
     return Dashboard3DSurface.panel(
-      accent: AppColors.primary,
+      accent: context.adaptivePrimary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -39,7 +39,7 @@ class RevenueChartSection extends ConsumerWidget {
             )
           else
             SizedBox(
-              height: chartHeight,
+              height: chartHeight + 44,
               child: RevenueChart(points: dashboard.revenuePoints),
             ),
         ],
@@ -87,7 +87,7 @@ class RevenueChartSection extends ConsumerWidget {
     return Text(
       'Revenue Chart',
       style: TextStyle(
-        color: AppColors.textPrimary,
+        color: context.appColors.textPrimary,
         fontSize: context.responsiveValue(compact: 18, medium: 19, expanded: 20),
         fontWeight: FontWeight.w800,
       ),

@@ -11,7 +11,7 @@ class UserAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Hard3DSurface(
-      color: AppColors.primary,
+      color: context.adaptivePrimary,
       borderRadius: 999,
       depth: 3,
       padding: const EdgeInsets.all(10),

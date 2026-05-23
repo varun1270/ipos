@@ -18,7 +18,15 @@ abstract final class Dashboard3DStyles {
     );
   }
 
-  static Color statAccentForIndex(int index) {
+  static Color statAccentForIndex(BuildContext context, int index) {
+    if (context.isDarkTheme) {
+      return switch (index) {
+        0 => AppColors.primaryOled,
+        1 => AppColors.infoOled,
+        2 => AppColors.successOled,
+        _ => AppColors.accentPurpleOled,
+      };
+    }
     return switch (index) {
       0 => AppColors.primary,
       1 => AppColors.info,
@@ -80,6 +88,7 @@ class Dashboard3DSurface extends StatelessWidget {
     return Container(
       margin: margin,
       child: Hard3DSurface.light(
+        color: context.appColors.elevatedSurface,
         borderRadius: radius,
         depth: 4,
         padding: padding ?? const EdgeInsets.all(16),
@@ -98,7 +107,7 @@ class DashboardBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.surfaceVariant,
+      color: context.appColors.background,
       child: child,
     );
   }
