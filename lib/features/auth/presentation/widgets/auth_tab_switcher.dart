@@ -151,37 +151,43 @@ class _SlidingPill extends StatelessWidget {
               height: height,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(radius),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    _lighten(color, 0.1),
-                    color,
-                    _darken(color, 0.06),
-                  ],
-                  stops: const [0.0, 0.45, 1.0],
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                  BoxShadow(
-                    color: color.withValues(alpha: glowAlpha),
-                    blurRadius: isDark ? 6 : 10,
-                    offset: const Offset(0, 2),
-                    spreadRadius: -2,
-                  ),
-                ],
+                color: isDark ? color : null,
+                gradient: isDark
+                    ? null
+                    : LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          _lighten(color, 0.1),
+                          color,
+                          _darken(color, 0.06),
+                        ],
+                        stops: const [0.0, 0.45, 1.0],
+                      ),
+                border: isDark
+                    ? Border.all(color: color.withValues(alpha: 0.32))
+                    : null,
+                boxShadow: isDark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                        BoxShadow(
+                          color: color.withValues(alpha: glowAlpha),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                          spreadRadius: -2,
+                        ),
+                      ],
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(radius),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    if (!isDark)
-                      Align(
+              child: isDark
+                  ? null
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(radius),
+                      child: Align(
                         alignment: Alignment.topCenter,
                         child: Container(
                           height: height * 0.4,
@@ -197,9 +203,7 @@ class _SlidingPill extends StatelessWidget {
                           ),
                         ),
                       ),
-                  ],
-                ),
-              ),
+                    ),
             ),
           ),
         ],

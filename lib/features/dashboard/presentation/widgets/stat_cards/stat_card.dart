@@ -25,99 +25,36 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.isDarkTheme) {
-      return _buildDarkCard(context);
-    }
-    return _buildLightCard(context);
-  }
+    final isDark = context.isDarkTheme;
 
-  Widget _buildDarkCard(BuildContext context) {
     final colors = context.appColors;
     final accent = Dashboard3DStyles.statAccentForIndex(context, index);
     final icon = Dashboard3DStyles.statIconForIndex(index);
+
     final padding = _padding(context);
     final iconSize = _iconSize(context);
     final sectionGap = _sectionGap(context);
 
-    return Hard3DSurface.light(
-      color: colors.elevatedSurface,
-      borderRadius: Dashboard3DStyles.cardRadius,
-      depth: 3,
-      padding: EdgeInsets.all(padding),
-      expandWidth: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: iconSize,
-                height: iconSize,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: DarkUiStyle.accentTint(accent),
-                  border: Border.all(color: accent.withValues(alpha: 0.28)),
-                ),
-                child: Icon(icon, color: accent, size: iconSize * 0.52),
-              ),
-              const Spacer(),
-              Flexible(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.end,
-                  style: TextStyle(
-                    color: colors.textSecondary,
-                    fontSize: _titleSize(context),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: sectionGap),
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: colors.textPrimary,
-              fontSize: _valueSize(context),
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          SizedBox(height: sectionGap),
-          Row(
-            children: [
-              TrendIndicator(trendPercent: trendPercent),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  subLabel,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: colors.textTertiary,
-                    fontSize: _subLabelSize(context),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+    final titleColor = isDark
+        ? colors.textSecondary
+        : Colors.white.withValues(alpha: 0.88);
 
-  Widget _buildLightCard(BuildContext context) {
-    final accent = Dashboard3DStyles.statAccentForIndex(context, index);
-    final icon = Dashboard3DStyles.statIconForIndex(index);
-    final padding = _padding(context);
-    final iconSize = _iconSize(context);
-    final sectionGap = _sectionGap(context);
+    final valueColor =
+        isDark ? colors.textPrimary : Colors.white;
+
+    final subLabelColor = isDark
+        ? colors.textTertiary
+        : Colors.white.withValues(alpha: 0.78);
+
+    final iconBackground = isDark
+        ? DarkUiStyle.accentTint(accent)
+        : Colors.white.withValues(alpha: 0.18);
+
+    final iconBorder = isDark
+        ? accent.withValues(alpha: 0.28)
+        : Colors.white.withValues(alpha: 0.28);
+
+    final iconColor = isDark ? accent : Colors.white;
 
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,73 +67,84 @@ class StatCard extends StatelessWidget {
               height: iconSize,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: Colors.white.withValues(alpha: 0.18),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
+                color: iconBackground,
+                border: Border.all(color: iconBorder),
               ),
               child: Icon(
                 icon,
-                color: Colors.white,
+                color: iconColor,
                 size: iconSize * 0.52,
               ),
             ),
-            const Spacer(),
-            Flexible(
-              child: Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.end,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.88),
-                  fontSize: _titleSize(context),
-                  fontWeight: FontWeight.w700,
+
+            const SizedBox(width: 12),
+
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    color: titleColor,
+                    fontSize: _titleSize(context),
+                    fontWeight:
+                        isDark ? FontWeight.w600 : FontWeight.w700,
+                  ),
                 ),
               ),
             ),
           ],
         ),
+
         SizedBox(height: sectionGap),
+
         Text(
           value,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: Colors.white,
+            color: valueColor,
             fontSize: _valueSize(context),
             fontWeight: FontWeight.w800,
-            shadows: const [
-              Shadow(
-                color: Colors.black26,
-                offset: Offset(0, 2),
-                blurRadius: 4,
-              ),
-            ],
+            shadows: isDark
+                ? null
+                : const [
+                    Shadow(
+                      color: Colors.black26,
+                      offset: Offset(0, 2),
+                      blurRadius: 4,
+                    ),
+                  ],
           ),
         ),
+
         SizedBox(height: sectionGap),
+
         Row(
           children: [
             TrendIndicator(
               trendPercent: trendPercent,
-              onDarkBackground: true,
-            ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                subLabel,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.78),
-                  fontSize: _subLabelSize(context),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              onDarkBackground: !isDark,
             ),
           ],
         ),
       ],
     );
+
+    if (isDark) {
+      return Hard3DSurface.light(
+        color: colors.elevatedSurface,
+        borderRadius: Dashboard3DStyles.cardRadius,
+        depth: 3,
+        padding: EdgeInsets.all(padding),
+        expandWidth: true,
+        child: content,
+      );
+    }
 
     return Hard3DSurface(
       color: accent,

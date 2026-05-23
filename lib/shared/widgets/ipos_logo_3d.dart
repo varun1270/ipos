@@ -78,8 +78,9 @@ class _IposLogo3DState extends State<IposLogo3D> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    const color = AppColors.primary;
-    final baseColor = _darken(color, 0.22);
+    final isDark = context.isDarkTheme;
+    final color = isDark ? context.adaptivePrimary : AppColors.primary;
+    final baseColor = _darken(color, isDark ? 0.14 : 0.22);
 
     Widget buildLogo(double shadowT, double bob) {
       final floatY = widget.animated ? -3.5 * bob : 0.0;
@@ -131,12 +132,13 @@ class _IposLogo3DState extends State<IposLogo3D> with TickerProviderStateMixin {
                           offset: Offset(0, 8 * shadowT),
                           spreadRadius: -3,
                         ),
-                        BoxShadow(
-                          color: color.withValues(alpha: 0.28 * shadowT),
-                          blurRadius: 16 * shadowT,
-                          offset: Offset(0, 4 * shadowT),
-                          spreadRadius: -4,
-                        ),
+                        if (!isDark)
+                          BoxShadow(
+                            color: color.withValues(alpha: 0.28 * shadowT),
+                            blurRadius: 16 * shadowT,
+                            offset: Offset(0, 4 * shadowT),
+                            spreadRadius: -4,
+                          ),
                       ],
                     ),
                     child: ClipRRect(
@@ -144,24 +146,25 @@ class _IposLogo3DState extends State<IposLogo3D> with TickerProviderStateMixin {
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          Positioned(
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            height: _height * 0.4,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.white.withValues(alpha: 0.18),
-                                    Colors.white.withValues(alpha: 0),
-                                  ],
+                          if (!isDark)
+                            Positioned(
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              height: _height * 0.4,
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.white.withValues(alpha: 0.18),
+                                      Colors.white.withValues(alpha: 0),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
                           Center(
                             child: Image.asset(
                               IposLogo3D.logoAsset,
