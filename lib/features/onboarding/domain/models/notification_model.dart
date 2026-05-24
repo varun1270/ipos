@@ -28,20 +28,14 @@ class OnboardingModel {
   });
 
   Color backgroundColor(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark
-        ? screenBackgroundColorDark
-        : screenBackgroundColor;
+    return Theme.of(context).brightness == Brightness.dark ? screenBackgroundColorDark : screenBackgroundColor;
   }
 
   Color accentColor(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark
-        ? iconInnerCircleColorDark
-        : iconInnerCircleColor;
+    return Theme.of(context).brightness == Brightness.dark ? iconInnerCircleColorDark : iconInnerCircleColor;
   }
 
   Color outerCircleColor(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark
-        ? iconOuterCircleColorDark
-        : iconOuterCircleColor;
+    return Theme.of(context).brightness == Brightness.dark ? iconOuterCircleColorDark : iconOuterCircleColor;
   }
 }
