@@ -29,6 +29,12 @@ class NotificationModel {
   final Color? backgroundColorLight;
   final Color? backgroundColorDark;
 
+  /// Optional timestamp for the notification
+  final DateTime? timestamp;
+
+  /// Read flag
+  final bool read;
+
   const NotificationModel({
     required this.title,
     required this.description,
@@ -40,7 +46,39 @@ class NotificationModel {
     this.iconColor,
     this.backgroundColorLight,
     this.backgroundColorDark,
+    this.timestamp,
+    this.read = false,
   });
+
+  NotificationModel copyWith({
+    String? title,
+    String? description,
+    NotificationType? type,
+    IconData? icon,
+    String? imageUrl,
+    String? imagePath,
+    List<String>? features,
+    Color? iconColor,
+    Color? backgroundColorLight,
+    Color? backgroundColorDark,
+    DateTime? timestamp,
+    bool? read,
+  }) {
+    return NotificationModel(
+      title: title ?? this.title,
+      description: description ?? this.description,
+      type: type ?? this.type,
+      icon: icon ?? this.icon,
+      imageUrl: imageUrl ?? this.imageUrl,
+      imagePath: imagePath ?? this.imagePath,
+      features: features ?? this.features,
+      iconColor: iconColor ?? this.iconColor,
+      backgroundColorLight: backgroundColorLight ?? this.backgroundColorLight,
+      backgroundColorDark: backgroundColorDark ?? this.backgroundColorDark,
+      timestamp: timestamp ?? this.timestamp,
+      read: read ?? this.read,
+    );
+  }
 
   // =========================
   // DEFAULT TYPE COLORS

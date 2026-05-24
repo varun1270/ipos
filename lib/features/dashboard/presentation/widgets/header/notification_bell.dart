@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../shared/hard_3d_surface.dart';
@@ -16,12 +17,11 @@ class NotificationBell extends StatelessWidget {
           borderRadius: 14,
           depth: 3,
           padding: const EdgeInsets.all(10),
-          onTap: () {},
-          child: const Icon(
-            Icons.notifications_none_rounded,
-            color: Colors.white,
-            size: 22,
-          ),
+          onTap: () {
+            // Handle notification bell tap
+            context.pushNamed('notifications');
+          },
+          child: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 22),
         ),
         Positioned(
           top: 2,
