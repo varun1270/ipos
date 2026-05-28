@@ -44,10 +44,7 @@ class MainApp extends ConsumerWidget {
       themeMode: themeMode,
       routerConfig: router,
       builder: (context, child) {
-        return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: AppSystemUi.overlayFor(context),
-          child: child ?? const SizedBox.shrink(),
-        );
+        return AnnotatedRegion<SystemUiOverlayStyle>(value: AppSystemUi.overlayFor(context), child: child ?? const SizedBox.shrink());
       },
     );
   }

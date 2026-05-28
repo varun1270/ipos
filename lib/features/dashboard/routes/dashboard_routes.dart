@@ -30,4 +30,17 @@ final List<RouteBase> dashboardRoutes = [
       },
     ),
   ),
+  GoRoute(
+    path: '/profile',
+    name: 'profile',
+    pageBuilder: (context, state) => CustomTransitionPage(
+      key: state.pageKey,
+      child: const NotificationScreen(),
+      transitionDuration: const Duration(milliseconds: 360),
+      reverseTransitionDuration: const Duration(milliseconds: 320),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return DashboardAnimations.horizontalSlide(animation: animation, direction: -1, child: child);
+      },
+    ),
+  ),
 ];
